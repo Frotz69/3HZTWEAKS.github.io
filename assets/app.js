@@ -18,6 +18,7 @@
       new URLSearchParams(location.search).get("api") ||
       "https://site-10cf5e522f974961a21ae12b9d829f1c.freebuff.page",
     // Once Stripe (or Lemon Squeezy) is wired up, paste a Payment Link per tier
+    // (until then every Buy button opens the beta checkout, which mails a key)
     // and the button goes straight there instead of the free beta flow.
     checkout: {
       pro: "",
@@ -30,8 +31,9 @@
     previewCheckout: true,
   };
 
-  // Monthly subscriptions. The only difference between the two tiers is
-  // 3HZ AI: Ultra has it, Pro does not.
+  // Monthly subscriptions. Either one unlocks the whole tweak catalogue in the
+  // app; Ultra is the supporter tier on top. 3HZ AI is in every build, free
+  // included, so neither plan gates the assistant.
   const TIERS = {
     pro: {
       name: "Pro subscription",
