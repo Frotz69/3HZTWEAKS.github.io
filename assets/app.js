@@ -10,9 +10,15 @@
 
   /* --------------------------------------------------------------- config */
   const CONFIG = {
-    // Paste a Stripe Payment Link (or Lemon Squeezy / Gumroad checkout URL)
-    // per tier. When a link is present the button goes straight there and the
-    // in-page preview checkout is skipped.
+    // Accounts, verification codes and licence keys live in the Worker in
+    // accounts_api/. Point this at the deployed site URL (preview or
+    // production) - the page never invents a key locally.
+    // ?api=http://127.0.0.1:8787 points the page at a local `wrangler dev`.
+    api:
+      new URLSearchParams(location.search).get("api") ||
+      "https://site-10cf5e522f974961a21ae12b9d829f1c.freebuff.page",
+    // Once Stripe (or Lemon Squeezy) is wired up, paste a Payment Link per tier
+    // and the button goes straight there instead of the free beta flow.
     checkout: {
       pro: "",
       ultra: "",
@@ -244,6 +250,281 @@
   const dl = $("#downloadBtn");
   if (dl) dl.href = CONFIG.downloadUrl;
 
+  /* ------------------------------------------------------------- accounts */
+  // Everything account-shaped talks to the Worker in accounts_api/: it mails
+  // verification codes and licence keys, so this page never fakes a key.
+  const API = CONFIG.api.replace(/\/$/, "");
+  const SESSION_KEY = "3hz.session";
+  let session = null;
+  try { session = JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); } catch (_) { session = null; }
+  let pendingEmail = "";
+  let lastFocus = null;
+
+  function saveSession(s) {
+    session = s;
+    try {
+      if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s));
+      else localStorage.removeItem(SESSION_KEY);
+    } catch (_) {}
+    paintNav();
+  }
+
+  async function api(path, body, token) {
+    let res;
+    try {
+      res = await fetch(API + path, {
+        method: body === undefined ? "GET" : "POST",
+        headers: Object.assign(
+          { "content-type": "application/json" },
+          token ? { authorization: "Bearer " + token } : {}
+        ),
+        body: body === undefined ? undefined : JSON.stringify(body),
+      });
+    } catch (_) {
+      return { ok: false, status: 0, data: { error: "No connection to the account service." } };
+    }
+    let data = {};
+    try { data = await res.json(); } catch (_) {}
+    if (!data.error && !res.ok) data.error = "That did not work (" + res.status + ").";
+    return { ok: res.ok, status: res.status, data };
+  }
+
+  const navSignIn = $("#navSignIn");
+  const navSignUp = $("#navSignUp");
+  const navAccount = $("#navAccount");
+
+  function paintNav() {
+    const signed = !!(session && session.user);
+    if (navSignIn) navSignIn.hidden = signed;
+    if (navSignUp) navSignUp.hidden = signed;
+    if (navAccount) navAccount.hidden = !signed;
+    if (signed) {
+      const pro = session.user.tier === "premium";
+      $("#navAccountLabel").textContent = session.user.email.split("@")[0];
+      $("#navPlan").textContent = pro ? "Pro" : "Free";
+      $("#navPlan").style.color = pro ? "#9ccbfa" : "";
+    }
+  }
+
+  async function refreshSession() {
+    if (!session || !session.token) return paintNav();
+    const r = await api("/api/me", undefined, session.token);
+    if (r.ok) saveSession({ token: session.token, user: r.data.user });
+    else if (r.status === 401) saveSession(null);
+    else paintNav();
+  }
+
+  /* account modal ---------------------------------------------------------- */
+  const acct = $("#acctModal");
+  const acctMsg = $("#acctMsg");
+  const acctTabs = $("#acctTabs");
+  const acctInk = $("#acctInk");
+  const ACCT_TITLES = {
+    signin: ["Welcome back", "One account for your plan, your key and your tweaks."],
+    signup: ["Create your account", "Free to start. 3HZ AI is included on every plan."],
+    verify: ["Check your inbox", "One step left - the code proves the address is yours."],
+    account: ["Your account", "Your plan, your licence key and this browser's session."],
+  };
+
+  function moveInk(tab) {
+    if (!acctInk || !tab) return;
+    acctInk.style.width = tab.offsetWidth + "px";
+    acctInk.style.transform = "translateX(" + tab.offsetLeft + "px)";
+  }
+
+  function acctTab(name) {
+    if (!acct) return;
+    const tab = acct.querySelector('.acct-tab[data-tab="' + name + '"]');
+    $$(".acct-tab", acct).forEach((t) => t.classList.toggle("is-on", t === tab));
+    $$(".acct-panel", acct).forEach((p) => p.classList.toggle("is-on", p.dataset.panel === name));
+    acctTabs.hidden = name === "verify" || name === "account";
+    const titles = ACCT_TITLES[name] || ACCT_TITLES.signin;
+    $("#acctTitle").textContent = titles[0];
+    $("#acctSub").textContent = titles[1];
+    if (tab && !acctTabs.hidden) requestAnimationFrame(() => moveInk(tab));
+    if (name === "account") paintAccount();
+    if (name === "signin") setTimeout(() => $("#siEmail").focus(), 220);
+    if (name === "signup") setTimeout(() => $("#suEmail").focus(), 220);
+  }
+
+  function openAcct(name) {
+    if (!acct) return;
+    lastFocus = document.activeElement;
+    acct.classList.add("open");
+    acct.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    setMsg("");
+    acctTab(session && session.user ? "account" : name || "signin");
+  }
+
+  function closeAcct() {
+    if (!acct) return;
+    acct.classList.remove("open");
+    acct.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  function setMsg(text, kind) {
+    if (!acctMsg) return;
+    acctMsg.textContent = text || "";
+    acctMsg.className = "acct-msg" + (kind ? " " + kind : "");
+  }
+
+  function paintAccount() {
+    if (!session || !session.user) { acctTab("signin"); return; }
+    const u = session.user;
+    const pro = u.tier === "premium";
+    $("#acctEmail").textContent = u.email;
+    $("#acctAvatar").textContent = (u.email[0] || "?").toUpperCase();
+    const plan = $("#acctPlan");
+    plan.textContent = pro ? "Pro plan · everything unlocked" : "Free plan · 3HZ AI included";
+    plan.className = "acct-plan" + (pro ? " pro" : "");
+    $("#acctKey").textContent = u.licence || "No key yet";
+    $("#acctUpgrade").hidden = pro;
+    $("#copyAcctKey").hidden = !u.licence;
+  }
+
+  if (navSignIn) navSignIn.addEventListener("click", () => openAcct("signin"));
+  if (navSignUp) navSignUp.addEventListener("click", () => openAcct("signup"));
+  if (navAccount) navAccount.addEventListener("click", () => openAcct("account"));
+  if (acct) {
+    $("#acctClose").addEventListener("click", closeAcct);
+    acct.addEventListener("click", (e) => { if (e.target === acct) closeAcct(); });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && acct.classList.contains("open")) closeAcct();
+    });
+    $$("[data-tab]", acct).forEach((b) =>
+      b.addEventListener("click", () => { setMsg(""); acctTab(b.dataset.tab); })
+    );
+  }
+
+  const $signin = $('.acct-panel[data-panel="signin"]');
+  const $signup = $('.acct-panel[data-panel="signup"]');
+  const $verify = $('.acct-panel[data-panel="verify"]');
+
+  function busy(btn, on, label) {
+    if (!btn) return;
+    if (on) {
+      btn.dataset.label = btn.dataset.label || btn.textContent;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> ' + (label || "Working…");
+    } else {
+      btn.disabled = false;
+      btn.textContent = btn.dataset.label || label || "Continue";
+    }
+  }
+
+  if ($signin) {
+    $signin.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = $("#siEmail").value.trim();
+      const pass = $("#siPass").value;
+      if (!email) return $("#siEmail").focus();
+      if (!pass) return $("#siPass").focus();
+      const btn = $("button[type=submit]", $signin);
+      busy(btn, true, "Signing in…");
+      setMsg("");
+      const r = await api("/api/login", { email: email, password: pass });
+      busy(btn, false, "Sign in");
+      if (r.ok) {
+        saveSession({ token: r.data.token, user: r.data.user });
+        setMsg("Signed in. Your key travels with the account.", "ok");
+        acctTab("account");
+      } else if (r.data.code === "unverified") {
+        pendingEmail = email;
+        $("#verifyLede").textContent = "Enter the 6-digit code we just sent to " + email + ".";
+        if (r.data.devCode) $("#verifyLede").textContent += " (dev code " + r.data.devCode + ")";
+        acctTab("verify");
+        setMsg(r.data.error);
+      } else {
+        setMsg(r.data.error, "err");
+      }
+    });
+  }
+
+  if ($signup) {
+    $signup.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = $("#suEmail").value.trim();
+      const pass = $("#suPass").value;
+      if (!email) return $("#suEmail").focus();
+      if (pass.length < 8) { setMsg("Use a password of at least 8 characters.", "err"); return $("#suPass").focus(); }
+      const btn = $("button[type=submit]", $signup);
+      busy(btn, true, "Sending code…");
+      setMsg("");
+      const r = await api("/api/signup", { email: email, password: pass });
+      busy(btn, false, "Create account");
+      if (r.ok) {
+        pendingEmail = email;
+        $("#verifyLede").textContent = "Enter the 6-digit code we sent to " + email + ".";
+        if (r.data.devCode) $("#verifyLede").textContent += " (dev code " + r.data.devCode + ")";
+        acctTab("verify");
+        setTimeout(() => $("#verifyCode").focus(), 250);
+        setMsg("Code sent. It expires in 15 minutes.", "ok");
+      } else {
+        setMsg(r.data.error, "err");
+        if (r.data.code === "exists") acctTab("signin");
+      }
+    });
+  }
+
+  if ($verify) {
+    $verify.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const code = $("#verifyCode").value.replace(/\D/g, "");
+      if (code.length !== 6) { setMsg("The code is six digits.", "err"); return $("#verifyCode").focus(); }
+      const btn = $("button[type=submit]", $verify);
+      busy(btn, true, "Checking…");
+      const r = await api("/api/verify", { email: pendingEmail, code: code });
+      busy(btn, false, "Verify and sign in");
+      if (r.ok) {
+        saveSession({ token: r.data.token, user: r.data.user });
+        setMsg("Email verified. Welcome in.", "ok");
+        acctTab("account");
+      } else {
+        setMsg(r.data.error, "err");
+      }
+    });
+    $("#verifyCode").addEventListener("input", (e) => {
+      e.target.value = e.target.value.replace(/\D/g, "").slice(0, 6);
+    });
+    $("#resendCode").addEventListener("click", async () => {
+      const r = await api("/api/resend", { email: pendingEmail });
+      setMsg(r.ok ? "Another code is on its way." : r.data.error, r.ok ? "ok" : "err");
+    });
+  }
+
+  if ($("#acctSignOut")) {
+    $("#acctSignOut").addEventListener("click", () => {
+      saveSession(null);
+      $("#siPass").value = "";
+      acctTab("signin");
+      setMsg("Signed out on this device.");
+    });
+  }
+
+  if ($("#copyAcctKey")) {
+    $("#copyAcctKey").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText($("#acctKey").textContent);
+        setMsg("Key copied.", "ok");
+      } catch (_) {
+        setMsg("Select the key and copy it manually.");
+      }
+    });
+  }
+
+  if ($("#acctUpgrade")) {
+    $("#acctUpgrade").addEventListener("click", () => {
+      closeAcct();
+      openModal("pro", session && session.user ? session.user.email : "");
+    });
+  }
+
+  paintNav();
+  refreshSession();
+
   /* ------------------------------------------------------------- checkout */
   const modal = $("#modal");
   const modalForm = $("#modalForm");
@@ -251,7 +532,6 @@
   const payForm = $("#payForm");
   const payBtn = $("#payBtn");
   let currentTier = "pro";
-  let lastFocus = null;
 
   const money = (n) => "€" + n.toFixed(2);
   const perMonth = (n) => money(n) + " / mo";
@@ -264,110 +544,76 @@
     $("#orderTier").textContent = t.name;
     $("#orderPrice").textContent = perMonth(t.price);
     $("#orderUpdates").textContent = t.billing;
-    $("#orderTotal").textContent = money(t.price);
-    payBtn.textContent = "Subscribe — " + money(t.price) + "/mo";
-    $("#modalDone").hidden = true;
+    $("#orderTotal").textContent = money(0);
+    payBtn.textContent = "Email my licence key";
+    modalDone.hidden = true;
     modalForm.hidden = false;
-    $("#licenceKey").textContent = "3HZ-0000-0000-0000";
   }
 
-  function openModal(tier) {
+  function openModal(tier, prefillEmail) {
+    if (!modal) return;
     currentTier = tier;
     fillTier(tier);
+    const field = $("#email");
+    if (field) field.value = prefillEmail || (session && session.user ? session.user.email : "");
     lastFocus = document.activeElement;
     modal.classList.add("open");
     document.body.style.overflow = "hidden";
-    const email = $("#email");
-    if (email) setTimeout(() => email.focus(), 220);
+    if (field) setTimeout(() => field.focus(), 220);
   }
 
   function closeModal() {
+    if (!modal) return;
     modal.classList.remove("open");
     document.body.style.overflow = "";
     if (lastFocus && lastFocus.focus) lastFocus.focus();
-  }
-
-  function makeKey() {
-    const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    const group = () =>
-      Array.from({ length: 4 }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join("");
-    return `3HZ-${group()}-${group()}-${group()}`;
   }
 
   $$("[data-buy]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const tier = btn.dataset.buy;
       const link = CONFIG.checkout[tier];
-      if (link) {
-        window.location.href = link;
-        return;
-      }
-      if (!CONFIG.previewCheckout) {
-        alert("Checkout is not connected yet. Add your Payment Link in assets/app.js.");
-        return;
-      }
+      if (link) { window.location.href = link; return; }
       openModal(tier);
     });
   });
 
   if (modal) {
     $("#modalClose").addEventListener("click", closeModal);
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) closeModal();
-    });
+    modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
     });
   }
 
-  // input helpers: keep the card fields looking like a checkout should
-  const card = $("#card");
-  if (card) {
-    card.addEventListener("input", () => {
-      const digits = card.value.replace(/\D/g, "").slice(0, 16);
-      card.value = digits.replace(/(.{4})/g, "$1 ").trim();
-    });
-  }
-
-  const exp = $("#exp");
-  if (exp) {
-    exp.addEventListener("input", () => {
-      const d = exp.value.replace(/\D/g, "").slice(0, 4);
-      exp.value = d.length > 2 ? d.slice(0, 2) + " / " + d.slice(2) : d;
-    });
-  }
-
-  const cvc = $("#cvc");
-  if (cvc) cvc.addEventListener("input", () => (cvc.value = cvc.value.replace(/\D/g, "").slice(0, 4)));
-
   if (payForm) {
-    payForm.addEventListener("submit", (e) => {
+    payForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const email = $("#email").value.trim();
-      const digits = card.value.replace(/\s/g, "");
-      const expOk = /^\d{2} \/ \d{2}$/.test(exp.value);
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return $("#email").focus();
-      if (digits.length < 15) return card.focus();
-      if (!expOk) return exp.focus();
-      if (cvc.value.length < 3) return cvc.focus();
-
-      payBtn.disabled = true;
-      payBtn.innerHTML = '<span class="spinner"></span> Processing…';
-
-      // Preview mode: nothing is charged, the flow is simulated end to end so
-      // the layout and the post-purchase state can be seen. Connect a real
-      // Payment Link in CONFIG.checkout to take payments.
-      setTimeout(() => {
-        payBtn.disabled = false;
-        payBtn.textContent = "Subscribe — " + money(TIERS[currentTier].price) + "/mo";
-        modalForm.hidden = true;
-        modalDone.hidden = false;
-        $("#licenceKey").textContent = makeKey();
-        $("#doneCopy").textContent =
-          "Your " + TIERS[currentTier].name + " is active at " +
-          money(TIERS[currentTier].price) + " a month. Paste the key into Settings → Licence. " +
-          (CONFIG.checkout[currentTier] ? "" : "This is a preview — no payment was taken.");
-      }, 1400);
+      const emailField = $("#email");
+      const email = emailField.value.trim();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { emailField.focus(); return; }
+      busy(payBtn, true, "Mailing your key…");
+      const r = await api("/api/purchase", { email: email, tier: currentTier });
+      busy(payBtn, false, "Email my licence key");
+      if (!r.ok) {
+        if (r.data.key) {
+          // the key exists but the mail did not go out; still show it
+          modalForm.hidden = true;
+          modalDone.hidden = false;
+          $("#licenceKey").textContent = r.data.key;
+          $("#doneCopy").textContent = r.data.error + " Your key is below - save it somewhere.";
+          return;
+        }
+        alert(r.data.error || "That did not work.");
+        return;
+      }
+      modalForm.hidden = true;
+      modalDone.hidden = false;
+      $("#licenceKey").textContent = r.data.key;
+      $("#doneCopy").textContent =
+        "Your " + TIERS[currentTier].name + " is active and the key is in " + email +
+        ". Paste it into the app under Account → Have a key?";
+      if (session && session.user && session.user.email === email) refreshSession();
     });
   }
 
