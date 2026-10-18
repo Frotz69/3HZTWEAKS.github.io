@@ -83,7 +83,7 @@
         </a>
         <a class="btn ghost" href="#pricing">See pricing <span class="arrow">→</span></a>
       </div>
-      <p class="hero-meta reveal" style="--d:240ms">Windows 10 &amp; 11 · 3 MB installer · Free account, no card</p>
+      <p class="hero-meta reveal" style="--d:240ms">Windows 10 &amp; 11 · 3 MB installer · Free account, no card · <a href="#download">macOS build from source</a></p>
     </div>
 
     <div class="hero-shot reveal" style="--d:300ms" data-tilt>
@@ -522,6 +522,22 @@
           <div class="faq-a"><p>These are Windows and driver-level settings, not game modification. They do not touch game files or memory. Some competitions still have their own rules, so check them if you play on a stage.</p></div>
         </div>
         <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">Is there a Mac version?
+            <span class="pm">+</span></button>
+          <div class="faq-a">
+            <p>Yes, and it is not a re-skin: Macs have no registry, so the macOS build has its own backend behind the same
+              window - <code>defaults</code> for preferences, <code>pmset</code> for power, <code>sysctl</code> and
+              <code>vm_stat</code> for the numbers, <code>diskutil</code> for drives. It carries 20 Mac-only tweaks
+              (hide the Dock, scale minimise, full path in the Finder title, fast key repeat, less motion, reduce
+              transparency, dark mode, no screenshot shadows) and a Mac disk cleaner for caches, logs, Xcode derived
+              data and package caches.</p>
+            <p>Apple apps can only be compiled on a Mac, so there is no installer to hand out: the download is the
+              source with <code>build-macos.command</code> in it. Unzip, double-click that file, and it checks for the
+              Xcode command line tools and CMake (offering to install CMake with Homebrew), builds the app and opens
+              it. It is unsigned, so the first launch needs right-click → Open. Free, same as the Windows build.</p>
+          </div>
+        </div>
+        <div class="faq-item">
           <button class="faq-q" aria-expanded="false">What is in the download, and how do I check it is intact?
             <span class="pm">+</span></button>
           <div class="faq-a">
@@ -534,6 +550,10 @@
               it to. It should print:</p>
             <p><code>8105cb1e5edf1e8f8438a3d91fdaa9879c3f4a1bcce955536eec6367434af669</code> for the installer zip, and<br>
               <code>7ad79a13c3b590eda3fd448f82e7de4d84564e1ab6ab0b38120d17caae7968ec</code> for the portable zip.</p>
+            <p><b>3hzTweaks-macOS-source.zip</b> (2 MB) is the Mac build's source in <code>3hzTweaks-macOS/</code>, with
+              <code>build-macos.command</code> beside it. Its sha256 is<br>
+              <code>1ee9ddfc137a0974faa5a51471e2f7fce50dd0272b1c23560e6bb8c237998113</code> - check it on a Mac with
+              <code>shasum -a 256 3hzTweaks-macOS-source.zip</code>.</p>
           </div>
         </div>
       </div>
@@ -559,6 +579,16 @@
         <a href="download/3hzTweaks-Portable.zip" download="3hzTweaks-Portable.zip">Portable zip (2 MB)</a> -
         no installer: the .exe and the two fonts it needs, unzip anywhere. Checksums are in the
         <a href="#faq">FAQ</a>.
+      </p>
+      <div class="hero-cta reveal" style="--d:220ms">
+        <a class="btn ghost" href="download/3hzTweaks-macOS-source.zip" download="3hzTweaks-macOS-source.zip">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+            <path d="M12 3v11m0 0 4-4m-4 4-4-4M4 19h16" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Download for macOS
+        </a>
+      </div>
+      <p class="hero-meta reveal" style="--d:260ms">macOS 12+ · 2 MB · source plus <code>build-macos.command</code> - Apple apps only compile on a Mac, so it builds here in about a minute, then opens</p>
     </div>
   </section>
 </main>
@@ -580,7 +610,7 @@
           </svg>
           3hz Tweaks
         </a>
-        <p>A native Windows tuning suite. Built by one person who got tired of guessing which switch mattered.</p>
+        <p>A native Windows tuning suite, with a macOS build you compile once from source. Built by one person who got tired of guessing which switch mattered.</p>
       </div>
       <div class="foot-col">
         <h5>Product</h5>
