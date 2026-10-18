@@ -308,7 +308,8 @@ button { font: inherit; color: inherit; }
 .dl-go { margin-left: auto; flex: none; color: var(--dimmer); transition: transform 0.22s var(--ease), color 0.2s; }
 .dl-item:hover .dl-go { transform: translateX(3px); color: var(--text); }
 
-.dl-note {
+/* .cta-final p is more specific, so name the panel here */
+.dl-menu .dl-note {
   margin: 2px 0 0;
   padding: 9px 12px 5px;
   border-top: 1px solid var(--line);
@@ -317,8 +318,8 @@ button { font: inherit; color: inherit; }
   letter-spacing: 0.02em;
   color: var(--dimmer);
 }
-.dl-note a { color: var(--dim); border-bottom: 1px solid var(--line-strong); }
-.dl-note a:hover { color: var(--text); }
+.dl-menu .dl-note a { color: var(--dim); border-bottom: 1px solid var(--line-strong); }
+.dl-menu .dl-note a:hover { color: var(--text); }
 
 /* ---------------------------------------------------------------- hero ---- */
 .hero {
