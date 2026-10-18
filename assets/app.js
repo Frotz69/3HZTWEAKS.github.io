@@ -550,6 +550,27 @@
     if (payBtn) payBtn.textContent = "Email my licence key";
   }
 
+  // Checkout problems are explained inside the card: an alert() is unreadable,
+  // and a raw API error like "Not found" tells a buyer nothing.
+  function payNote(message) {
+    const note = $("#payNote");
+    if (!note) return;
+    if (!message) { note.hidden = true; note.textContent = ""; return; }
+    note.textContent = message;
+    note.hidden = false;
+  }
+
+  // The Worker answers 404 for /api/checkout when the deployed build predates
+  // Stripe, which is a different problem from Stripe refusing a card.
+  function checkoutUnavailable(res) {
+    return res.status === 404 || res.status === 501 || res.status === 503 ||
+           res.status === 0 || (res.data && res.data.needsSetup);
+  }
+
+  const UNAVAILABLE =
+    "Card payments are not switched on yet, so nothing was charged. The account " +
+    "service needs its Stripe keys and a redeploy before this button can take a card.";
+
   const money = (n) => "€" + n.toFixed(2);
   const perMonth = (n) => money(n) + " / mo";
 
@@ -565,6 +586,7 @@
     payBtn.textContent = betaMode ? "Email my licence key" : "Continue to Stripe";
     modalDone.hidden = true;
     modalForm.hidden = false;
+    payNote("");
   }
 
   function openModal(tier, prefillEmail) {
@@ -614,6 +636,7 @@
       // 1. the real path: the Worker opens a Stripe subscription session and the
       //    page goes to Stripe's own checkout (the card never touches this page).
       if (!betaMode) {
+        payNote("");
         busy(payBtn, true, "Opening Stripe…");
         const co = await api("/api/checkout", { email: email, tier: currentTier });
         if (co.ok && co.data.url) {
@@ -621,12 +644,19 @@
           return;
         }
         busy(payBtn, false, "Continue to Stripe");
-        if (!(co.status === 501 || (co.data && co.data.needsSetup))) {
-          alert((co.data && co.data.error) || "Stripe did not accept that. Try again in a moment.");
+        if (!checkoutUnavailable(co)) {
+          // Stripe itself refused: say what it said, in the card
+          payNote((co.data && co.data.error) || "Stripe did not accept that. Try again in a moment.");
           return;
         }
-        // 2. Stripe is not configured on the Worker yet: fall back to the
-        //    card-less handout so the page still works while it is being set up.
+        // The service cannot take a card. Only a Worker that offers the
+        // card-less handout as a deliberate setup mode is stepped down to it;
+        // an old build that simply has no /api/checkout must not hand out keys.
+        const welcomeBeta = !!(co.data && co.data.needsSetup);
+        if (!welcomeBeta) {
+          payNote(UNAVAILABLE);
+          return;
+        }
         showBetaMode();
       }
 
@@ -642,7 +672,7 @@
           $("#doneCopy").textContent = r.data.error + " Your key is below - save it somewhere.";
           return;
         }
-        alert(r.data.error || "That did not work.");
+        payNote(r.data.error || "That did not work.");
         return;
       }
       modalForm.hidden = true;
