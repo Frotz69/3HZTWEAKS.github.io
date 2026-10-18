@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/styles.css?v=9">
+<link rel="stylesheet" href="assets/styles.css?v=10">
 </head>
 <body id="top">
 <div class="noise" aria-hidden="true"></div>
@@ -444,9 +444,6 @@
             <li><svg viewBox="0 0 24 24" fill="none" stroke="#5fd6a8" stroke-width="2.2"><path d="M4 12.5 9 17.5 20 6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Game library with cover art</li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="#5fd6a8" stroke-width="2.2"><path d="M4 12.5 9 17.5 20 6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Launch games from the app</li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="#5fd6a8" stroke-width="2.2"><path d="M4 12.5 9 17.5 20 6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>5 everyday tools: DNS flush, shader cache, recycle bin</li>
-            <li class="off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 6l12 12M18 6 6 18" stroke-linecap="round"/></svg>The other 16 tools <span class="ultra-tag">Ultra</span></li>
-            <li class="off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 6l12 12M18 6 6 18" stroke-linecap="round"/></svg>All 168 tweaks</li>
-            <li class="off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 6l12 12M18 6 6 18" stroke-linecap="round"/></svg>3HZ AI <span class="ultra-tag">Ultra</span></li>
           </ul>
         </article>
 
@@ -461,8 +458,6 @@
             <li><svg viewBox="0 0 24 24" fill="none" stroke="#5fd6a8" stroke-width="2.2"><path d="M4 12.5 9 17.5 20 6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Custom cover art &amp; favourites</li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="#5fd6a8" stroke-width="2.2"><path d="M4 12.5 9 17.5 20 6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Backups, revert and report export</li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="#5fd6a8" stroke-width="2.2"><path d="M4 12.5 9 17.5 20 6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Works offline once the key is in</li>
-            <li class="off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 6l12 12M18 6 6 18" stroke-linecap="round"/></svg>17 more tools in the Tools page <span class="ultra-tag">Ultra</span></li>
-            <li class="off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 6l12 12M18 6 6 18" stroke-linecap="round"/></svg>3HZ AI <span class="ultra-tag">Ultra</span></li>
           </ul>
         </article>
 
@@ -592,6 +587,15 @@
           </div>
         </div>
         <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">Windows says it does not recognize this app. Is it safe?
+            <span class="pm">+</span></button>
+          <div class="faq-a"><p>The build is not code-signed yet, so SmartScreen shows "Windows protected your PC"
+            the first time you run the installer. If you would rather not take that on trust, check the
+            <code>sha256</code> in the download question below and read the source - then choose <b>More info</b> and <b>Run anyway</b>.
+            The installer needs no admin rights: it copies the app into your own user folder, and the app itself
+            only writes the registry values a tweak owns, storing the old ones so every change reverts.</p></div>
+        </div>
+        <div class="faq-item">
           <button class="faq-q" aria-expanded="false">What is in the download, and how do I check it is intact?
             <span class="pm">+</span></button>
           <div class="faq-a">
@@ -602,8 +606,8 @@
               which must stay together - unzip the folder anywhere and run the .exe.</p>
             <p>Check the download with <code>certutil -hashfile 3hzTweaks-Setup.zip SHA256</code> in the folder you saved
               it to. It should print:</p>
-            <p><code>8105cb1e5edf1e8f8438a3d91fdaa9879c3f4a1bcce955536eec6367434af669</code> for the installer zip, and<br>
-              <code>7ad79a13c3b590eda3fd448f82e7de4d84564e1ab6ab0b38120d17caae7968ec</code> for the portable zip.</p>
+            <p><code>043de668ebd112b1b63eb7f8bc3ac0a87464380e690cf1d228b51ee9d81137a9</code> for the installer zip, and<br>
+              <code>87df6be26a27687280c3646bfe44bd994f6549ec60ce6925a4ff69e17c735df9</code> for the portable zip.</p>
             <p><b>3hzTweaks-macOS-source.zip</b> (2 MB) is the Mac build's source in <code>3hzTweaks-macOS/</code>, with
               <code>build-macos.command</code> beside it. Its sha256 is<br>
               <code>1ee9ddfc137a0974faa5a51471e2f7fce50dd0272b1c23560e6bb8c237998113</code> - check it on a Mac with

@@ -987,8 +987,6 @@ h2 {
 
 .tier li { display: flex; gap: 9px; align-items: flex-start; }
 .tier li svg { flex: none; width: 15px; height: 15px; margin-top: 3px; }
-.tier li.off { color: #5b6675; }
-.tier li.off svg { color: #3d4855; }
 
 .pricing-foot {
   margin-top: 22px;
