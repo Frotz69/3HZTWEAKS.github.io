@@ -22,8 +22,11 @@
     // session URL and sends the buyer to Stripe's own page. While Stripe is not
     // configured the Worker answers 501 and this page falls back to the card-less
     // key handout, so the buttons keep working during setup.
-    // Where the installer lives. Point this at your GitHub release asset.
-    downloadUrl: "https://github.com/frotz69/3HZTWEAKS.github.io/releases/latest",
+    // The Windows build, served from this repository so the button always has
+    // something behind it (the installer zip; the portable zip is linked beside
+    // it in the download section). Rebuild them from native/build with
+    // tools/pack_release.py, which prints the checksums the FAQ quotes.
+    downloadUrl: "download/3hzTweaks-Setup.zip",
   };
 
   // Monthly subscriptions. Pro unlocks the whole tweak catalogue; Ultra adds

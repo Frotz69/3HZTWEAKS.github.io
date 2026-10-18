@@ -83,7 +83,7 @@
         </a>
         <a class="btn ghost" href="#pricing">See pricing <span class="arrow">→</span></a>
       </div>
-      <p class="hero-meta reveal" style="--d:240ms">Windows 10 &amp; 11 · 38 MB · Free account, no card</p>
+      <p class="hero-meta reveal" style="--d:240ms">Windows 10 &amp; 11 · 3 MB installer · Free account, no card</p>
     </div>
 
     <div class="hero-shot reveal" style="--d:300ms" data-tilt>
@@ -491,6 +491,21 @@
             <span class="pm">+</span></button>
           <div class="faq-a"><p>These are Windows and driver-level settings, not game modification. They do not touch game files or memory. Some competitions still have their own rules, so check them if you play on a stage.</p></div>
         </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">What is in the download, and how do I check it is intact?
+            <span class="pm">+</span></button>
+          <div class="faq-a">
+            <p><b>3hzTweaks-Setup.zip</b> (3 MB) holds the installer plus its <code>payload</code> folder; run
+              <code>3hzTweaksSetup.exe</code> from inside the unzipped folder and it copies the app, its two fonts
+              and its uninstaller to the folder you choose. <b>3hzTweaks-Portable.zip</b> (2 MB) is the app itself:
+              <code>3hzTweaks.exe</code> with <code>Inter.ttf</code> and <code>fa-solid-900.ttf</code> next to it,
+              which must stay together - unzip the folder anywhere and run the .exe.</p>
+            <p>Check the download with <code>certutil -hashfile 3hzTweaks-Setup.zip SHA256</code> in the folder you saved
+              it to. It should print:</p>
+            <p><code>7b958daed23995d4d2daa31c85450f4fd3df800580bb82aa42b12a8f5200e261</code> for the installer zip, and<br>
+              <code>ac0c359930dfad90073c27e5399ce304bcd86395fcf3696f5a3a28c072f5d570</code> for the portable zip.</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -501,7 +516,7 @@
       <h2 class="reveal">Built for the machine you actually own.</h2>
       <p class="reveal" style="--d:60ms">Download the free build, flip a few switches, watch the numbers move. Upgrade only if it earns it.</p>
       <div class="hero-cta reveal" style="--d:120ms">
-        <a class="btn primary" id="downloadBtn" href="#">
+        <a class="btn primary" id="downloadBtn" href="#" download>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
             <path d="M12 3v11m0 0 4-4m-4 4-4-4M4 19h16" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -509,7 +524,11 @@
         </a>
         <button class="btn ghost" data-buy="ultra">Get Ultra — €3/mo <span class="arrow">→</span></button>
       </div>
-      <p class="hero-meta reveal" style="--d:180ms">Windows 10 &amp; 11 · 64-bit · 38 MB</p>
+      <p class="hero-meta reveal" style="--d:180ms">Windows 10 &amp; 11 · 64-bit · 3 MB installer, nothing else to fetch</p>
+      <p class="hero-meta reveal" style="--d:200ms">
+        <a href="download/3hzTweaks-Portable.zip" download>Portable zip (2 MB)</a> -
+        no installer: the .exe and the two fonts it needs, unzip anywhere. Checksums are in the
+        <a href="#faq">FAQ</a>.
     </div>
   </section>
 </main>
