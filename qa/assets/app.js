@@ -26,7 +26,7 @@
     // something behind it (the installer zip; the portable zip is linked beside
     // it in the download section). Rebuild them from native/build with
     // tools/pack_release.py, which prints the checksums the FAQ quotes.
-    downloadUrl: "../download/3hzTweaks-Setup.zip",
+    downloadUrl: "download/3hzTweaks-Setup.zip",
   };
 
   // Monthly subscriptions. Pro unlocks the whole tweak catalogue; Ultra adds
@@ -265,6 +265,73 @@
   if (dl) {
     dl.href = CONFIG.downloadUrl;
     dl.setAttribute("download", CONFIG.downloadUrl.split("/").pop());
+  }
+
+  // Split download control: the main button downloads the Windows installer,
+  // the caret opens a menu with the portable zip and the macOS build. The menu
+  // is plain markup with real hrefs, so it works before this script runs; this
+  // only adds the open/close, the arrow, Escape and arrow-key movement.
+  const split = $("#dlSplit");
+  const toggle = $("#dlToggle");
+  const menu = $("#dlMenu");
+  if (split && toggle && menu) {
+    const items = Array.prototype.slice.call(menu.querySelectorAll(".dl-item"));
+    const isOpen = () => split.classList.contains("open");
+    const setOpen = (open) => {
+      split.classList.toggle("open", open);
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    };
+
+    toggle.addEventListener("click", (e) => {
+      e.preventDefault();
+      setOpen(!isOpen());
+    });
+
+    // hover intent on the caret only, so brushing past the button never pops it
+    let hoverTimer = 0;
+    toggle.addEventListener("pointerenter", (e) => {
+      if (e.pointerType !== "mouse") return;
+      clearTimeout(hoverTimer);
+      hoverTimer = setTimeout(() => setOpen(true), 110);
+    });
+    split.addEventListener("pointerleave", (e) => {
+      if (e.pointerType !== "mouse") return;
+      clearTimeout(hoverTimer);
+      hoverTimer = setTimeout(() => {
+        if (!split.contains(document.activeElement)) setOpen(false);
+      }, 240);
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!split.contains(e.target)) setOpen(false);
+    });
+
+    menu.addEventListener("click", (e) => {
+      if (e.target.closest(".dl-item")) setOpen(false);
+    });
+
+    // Enter and Space are left to the button itself; only the arrow keys need
+    // help. The handler sits on the split so it can also move between rows, and
+    // it ignores the caret's own event so one press never moves focus twice.
+    split.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && isOpen()) {
+        setOpen(false);
+        toggle.focus();
+        return;
+      }
+      if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+      e.preventDefault();
+      const at = items.indexOf(document.activeElement);
+      if (at === -1) {
+        if (e.target !== toggle) return;
+        setOpen(true);
+        const first = e.key === "ArrowDown" ? items[0] : items[items.length - 1];
+        if (first) first.focus();
+        return;
+      }
+      const next = e.key === "ArrowDown" ? (at + 1) % items.length : (at - 1 + items.length) % items.length;
+      items[next].focus();
+    });
   }
 
   /* ------------------------------------------------------------- accounts */

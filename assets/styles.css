@@ -180,6 +180,146 @@ button { font: inherit; color: inherit; }
 .btn .arrow { transition: transform 0.25s var(--ease); }
 .btn:hover .arrow { transform: translateX(3px); }
 
+/* ---------------------------------------------------- download split ------ */
+/* One Download button, one caret. The caret opens a small menu with the
+   Windows installer, the portable zip and the macOS source build. */
+.dl-split { position: relative; display: flex; align-items: stretch; }
+
+/* the small-screen .btn { width: 100% } rule must not swallow the split */
+.dl-split .dl-main {
+  width: auto;
+  flex: 1 1 auto;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  padding-right: 17px;
+}
+.dl-main svg { transition: transform 0.3s var(--ease); }
+.dl-main:hover svg { transform: translateY(2px); }
+
+.dl-split .dl-caret {
+  position: relative;
+  overflow: hidden;
+  flex: none;
+  width: 42px;
+  padding: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: 1px solid rgba(10, 16, 23, 0.14);
+}
+
+.dl-caret svg { transition: transform 0.34s var(--ease); }
+.dl-split.open .dl-caret svg { transform: rotate(180deg); }
+.dl-split.open .dl-caret { box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 14px 34px -12px rgba(140, 195, 255, 0.85); }
+
+/* a thin light sweeps across the caret when the menu is open */
+.dl-caret::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.55), transparent 80%);
+  opacity: 0;
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+.dl-split.open .dl-caret::after { animation: dl-sheen 0.7s var(--ease); }
+
+@keyframes dl-sheen {
+  from { opacity: 0.9; transform: translateX(-120%); }
+  to { opacity: 0; transform: translateX(120%); }
+}
+
+.dl-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  z-index: 30;
+  width: max-content;
+  min-width: 330px;
+  max-width: min(370px, calc(100vw - 28px));
+  padding: 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
+  background: rgba(11, 16, 23, 0.94);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  backdrop-filter: blur(18px) saturate(1.2);
+  box-shadow: 0 34px 70px -26px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+  text-align: left;
+  opacity: 0;
+  transform: translate(-50%, -8px) scale(0.97);
+  transform-origin: top center;
+  pointer-events: none;
+  transition: opacity 0.2s var(--ease), transform 0.3s var(--ease);
+}
+
+.dl-split.open .dl-menu { opacity: 1; transform: translate(-50%, 0) scale(1); pointer-events: auto; }
+
+.dl-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 11px;
+  color: var(--text);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.22s var(--ease), transform 0.26s var(--ease), background 0.18s;
+}
+
+.dl-split.open .dl-item {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(45ms + var(--i, 0) * 45ms);
+}
+
+.dl-item:hover, .dl-item:focus-visible { background: rgba(255, 255, 255, 0.06); outline: none; }
+.dl-item:active { background: rgba(255, 255, 255, 0.1); }
+
+.dl-ico {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(140, 199, 255, 0.1);
+  color: #bcd9f7;
+  transition: background 0.2s, color 0.2s, transform 0.25s var(--ease);
+}
+.dl-item:hover .dl-ico { background: rgba(140, 199, 255, 0.17); color: #dcecff; transform: scale(1.04); }
+
+.dl-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.dl-txt strong { display: flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 600; letter-spacing: -0.01em; }
+.dl-txt small { font-family: var(--mono); font-size: 11px; letter-spacing: 0.02em; color: var(--dimmer); }
+
+.dl-badge {
+  font-family: var(--mono);
+  font-style: normal;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 5px;
+  color: #8ae8c4;
+  background: rgba(95, 214, 168, 0.13);
+}
+
+.dl-go { margin-left: auto; flex: none; color: var(--dimmer); transition: transform 0.22s var(--ease), color 0.2s; }
+.dl-item:hover .dl-go { transform: translateX(3px); color: var(--text); }
+
+.dl-note {
+  margin: 2px 0 0;
+  padding: 9px 12px 5px;
+  border-top: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+  color: var(--dimmer);
+}
+.dl-note a { color: var(--dim); border-bottom: 1px solid var(--line-strong); }
+.dl-note a:hover { color: var(--text); }
+
 /* ---------------------------------------------------------------- hero ---- */
 .hero {
   position: relative;
@@ -933,21 +1073,13 @@ h2 {
 .cta-final {
   position: relative;
   text-align: center;
-  padding: 120px 0 130px;
+  padding: 120px 0 150px;
   border-top: 1px solid var(--line);
-  overflow: hidden;
-}
-
-.cta-final::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: -260px;
-  width: 1000px;
-  height: 520px;
-  transform: translateX(-50%);
-  background: radial-gradient(50% 50% at 50% 50%, rgba(91, 168, 240, 0.22), transparent 70%);
-  filter: blur(20px);
+  /* the download menu opens below the button, so nothing may clip it; the
+     blue glow that used to bleed out of ::before is painted as a background
+     ellipse instead, which keeps it inside the section */
+  overflow: visible;
+  background: radial-gradient(50% 250px at 50% 100%, rgba(91, 168, 240, 0.2), transparent 70%);
 }
 
 .cta-final h2 { position: relative; }
@@ -1236,6 +1368,8 @@ footer {
     scroll-behavior: auto !important;
   }
   .reveal { opacity: 1; transform: none; }
+  .dl-split.open .dl-item { transition-delay: 0s; }
+  .dl-split.open .dl-caret::after { animation: none; }
 }
 
 
