@@ -282,24 +282,11 @@
       toggle.setAttribute("aria-expanded", open ? "true" : "false");
     };
 
+    // Click (or Enter/Space) is the only way in: hovering the caret must never
+    // open the panel, and must never close one that is already open.
     toggle.addEventListener("click", (e) => {
       e.preventDefault();
       setOpen(!isOpen());
-    });
-
-    // hover intent on the caret only, so brushing past the button never pops it
-    let hoverTimer = 0;
-    toggle.addEventListener("pointerenter", (e) => {
-      if (e.pointerType !== "mouse") return;
-      clearTimeout(hoverTimer);
-      hoverTimer = setTimeout(() => setOpen(true), 110);
-    });
-    split.addEventListener("pointerleave", (e) => {
-      if (e.pointerType !== "mouse") return;
-      clearTimeout(hoverTimer);
-      hoverTimer = setTimeout(() => {
-        if (!split.contains(document.activeElement)) setOpen(false);
-      }, 240);
     });
 
     document.addEventListener("click", (e) => {

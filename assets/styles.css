@@ -198,7 +198,6 @@ button { font: inherit; color: inherit; }
 
 .dl-split .dl-caret {
   position: relative;
-  overflow: hidden;
   flex: none;
   width: 42px;
   padding: 0;
@@ -209,25 +208,6 @@ button { font: inherit; color: inherit; }
 
 .dl-caret svg { transition: transform 0.34s var(--ease); }
 .dl-split.open .dl-caret svg { transform: rotate(180deg); }
-.dl-split.open .dl-caret { box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 14px 34px -12px rgba(140, 195, 255, 0.85); }
-
-/* a thin light sweeps across the caret when the menu is open */
-.dl-caret::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.55), transparent 80%);
-  opacity: 0;
-  transform: translateX(-120%);
-  pointer-events: none;
-}
-.dl-split.open .dl-caret::after { animation: dl-sheen 0.7s var(--ease); }
-
-@keyframes dl-sheen {
-  from { opacity: 0.9; transform: translateX(-120%); }
-  to { opacity: 0; transform: translateX(120%); }
-}
 
 .dl-menu {
   position: absolute;
@@ -1384,7 +1364,6 @@ footer {
   }
   .reveal { opacity: 1; transform: none; }
   .dl-split.open .dl-item { transition-delay: 0s; }
-  .dl-split.open .dl-caret::after { animation: none; }
 }
 
 
