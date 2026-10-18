@@ -672,7 +672,11 @@
           $("#doneCopy").textContent = r.data.error + " Your key is below - save it somewhere.";
           return;
         }
-        payNote(r.data.error || "That did not work.");
+        // A production Worker refuses the card-less handout (403, with a
+        // pointer at /api/checkout). That is not a buyer's error to read: it
+        // means checkout itself is not ready, so say that instead.
+        const noHandout = r.status === 403 || !!(r.data && r.data.checkout);
+        payNote(noHandout ? UNAVAILABLE : (r.data.error || "That did not work."));
         return;
       }
       modalForm.hidden = true;
