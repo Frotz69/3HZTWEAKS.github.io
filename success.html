@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your 3hz Tweaks key</title>
+<meta name="robots" content="noindex">
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: grid; place-items: center;
+    background: radial-gradient(900px 500px at 50% -10%, #16233a 0%, #090c11 55%);
+    color: #e8eef6; font: 15px/1.65 'Segoe UI', Helvetica, Arial, sans-serif;
+    padding: 28px 16px;
+  }
+  .card {
+    width: 100%; max-width: 560px; background: #111823; border: 1px solid #1f2a38;
+    border-radius: 18px; padding: 30px 32px 26px;
+  }
+  .mark { display: flex; align-items: center; gap: 10px; color: #8fa3bb; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
+  .mark i { width: 26px; height: 26px; border-radius: 8px; background: #5ba8f0; display: grid; place-items: center; }
+  .mark i::after { content: ""; width: 12px; height: 2px; background: #fff; border-radius: 2px; }
+  h1 { font-size: 23px; margin: 16px 0 6px; letter-spacing: -.01em; }
+  p { color: #a9b7c8; margin: 0 0 14px; }
+  .status { color: #8fa3bb; font-size: 13.5px; }
+  .key {
+    margin: 18px 0 8px; padding: 16px 18px; border: 1px solid #22303f; border-radius: 12px;
+    background: #0c1420; font-family: Consolas, ui-monospace, monospace; font-size: 20px;
+    letter-spacing: .10em; text-align: center; color: #f2f7fd; word-break: break-all;
+  }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  button, a.btn {
+    font: inherit; font-weight: 600; border-radius: 10px; padding: 11px 18px; border: 1px solid transparent;
+    cursor: pointer; text-decoration: none; display: inline-block;
+  }
+  button.primary { background: linear-gradient(135deg, #8fc5f7, #4d8fe0); color: #071019; }
+  a.btn.ghost { background: #0d141d; border-color: #22303f; color: #cfe0f2; }
+  ol { color: #a9b7c8; padding-left: 20px; margin: 18px 0 0; }
+  ol li { margin-bottom: 6px; }
+  code { background: #0c1420; border: 1px solid #22303f; border-radius: 6px; padding: 1px 6px; font-size: 13px; }
+  .fine { color: #6f7f93; font-size: 12.5px; margin-top: 16px; }
+</style>
+</head>
+<body>
+<main class="card">
+  <div class="mark"><i></i> 3hz Tweaks</div>
+  <h1 id="title">Finishing your order…</h1>
+  <p id="sub">Waiting for Stripe to confirm the payment. This page updates itself.</p>
+  <div class="key" id="key" hidden></div>
+  <div class="row" id="actions" hidden>
+    <button class="primary" id="copy">Copy key</button>
+    <a class="btn ghost" href="index.html#download">Download the app</a>
+  </div>
+  <div class="status" id="status">Checking…</div>
+  <ol id="steps">
+    <li>Paste the key into the app under <code>Account → Have a key?</code></li>
+    <li>The plan unlocks on that PC and keeps working offline.</li>
+    <li>The same key re-unlocks the app after a reinstall, and it is in your inbox too.</li>
+  </ol>
+  <p class="fine">Cancelling later is done from the Stripe receipt, in two clicks. The account drops back to Free; nothing you applied is reverted.</p>
+</main>
+<script>
+(function () {
+  "use strict";
+  var params = new URLSearchParams(location.search);
+  var order = params.get("order") || "";
+  var api = params.get("api") || "https://site-10cf5e522f974961a21ae12b9d829f1c.freebuff.page";
+  var title = document.getElementById("title");
+  var sub = document.getElementById("sub");
+  var keyBox = document.getElementById("key");
+  var actions = document.getElementById("actions");
+  var status = document.getElementById("status");
+  var steps = document.getElementById("steps");
+  var attempts = 0;
+
+  function show(msg) { status.textContent = msg; }
+
+  if (!/^[a-f0-9]{16,64}$/i.test(order)) {
+    title.textContent = "No order to show";
+    sub.textContent = "Open this page from the link on the Stripe receipt, or check the key that was emailed to you.";
+    status.textContent = "";
+    steps.hidden = true;
+    return;
+  }
+
+  function done(data) {
+    title.textContent = "You are on " + (data.plan || "the plan");
+    sub.textContent = "The key is below and in your inbox. Keep it: it re-unlocks the app after a reinstall.";
+    keyBox.textContent = data.key;
+    keyBox.hidden = false;
+    actions.hidden = false;
+    show("Payment confirmed · order " + data.order.slice(0, 8) + "…");
+    document.getElementById("copy").addEventListener("click", function () {
+      navigator.clipboard.writeText(data.key).then(function () {
+        document.getElementById("copy").textContent = "Copied";
+        setTimeout(function () { document.getElementById("copy").textContent = "Copy key"; }, 1600);
+      }, function () { show("Select the key and copy it manually."); });
+    });
+  }
+
+  function poll() {
+    attempts++;
+    fetch(api + "/api/order?id=" + encodeURIComponent(order), { headers: { accept: "application/json" } })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (j && j.ok && j.status === "paid" && j.key) return done(j);
+        if (j && j.ok && j.tier) {
+          show("Order received · waiting for the payment to clear (" + j.plan + ")");
+        } else if (j && j.error) {
+          show(j.error);
+          if (attempts > 3) { title.textContent = "We could not find that order"; steps.hidden = true; return; }
+        }
+        if (attempts < 40) setTimeout(poll, 2500);
+        else {
+          title.textContent = "Still waiting for Stripe";
+          sub.textContent = "The key is emailed as soon as the payment clears. You can close this page - nothing is lost.";
+        }
+      })
+      .catch(function () {
+        show("Network hiccup · retrying…");
+        if (attempts < 10) setTimeout(poll, 3000);
+      });
+  }
+
+  poll();
+})();
+</script>
+</body>
+</html>

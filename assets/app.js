@@ -17,35 +17,41 @@
     api:
       new URLSearchParams(location.search).get("api") ||
       "https://site-10cf5e522f974961a21ae12b9d829f1c.freebuff.page",
-    // Once Stripe (or Lemon Squeezy) is wired up, paste a Payment Link per tier
-    // (until then every Buy button opens the beta checkout, which mails a key)
-    // and the button goes straight there instead of the free beta flow.
-    checkout: {
-      pro: "",
-      ultra: "",
-    },
+    // Checkout is a Stripe subscription created by the Worker (/api/checkout),
+    // so there is no payment link to paste here: the page asks the Worker for a
+    // session URL and sends the buyer to Stripe's own page. While Stripe is not
+    // configured the Worker answers 501 and this page falls back to the card-less
+    // key handout, so the buttons keep working during setup.
     // Where the installer lives. Point this at your GitHub release asset.
     downloadUrl: "https://github.com/frotz69/3HZTWEAKS.github.io/releases/latest",
-    // true  -> the Buy buttons open the preview checkout (no charge)
-    // false -> Buy buttons with no link are hidden behind a setup notice
-    previewCheckout: true,
   };
 
-  // Monthly subscriptions. Either one unlocks the whole tweak catalogue in the
-  // app; Ultra is the supporter tier on top. 3HZ AI is in every build, free
-  // included, so neither plan gates the assistant.
+  // Monthly subscriptions. Pro unlocks the whole tweak catalogue; Ultra adds
+  // 3HZ AI (the assistant page in the app is Ultra-only). Pro and Ultra are
+  // separate keys, and an account shows whichever plan is better.
   const TIERS = {
     pro: {
-      name: "Pro subscription",
+      name: "Pro",
       price: 1,
       billing: "Monthly, cancel anytime",
+      perks: "every tweak in the catalogue",
     },
     ultra: {
-      name: "Ultra subscription",
-      price: 2,
+      name: "Ultra",
+      price: 3,
       billing: "Monthly, cancel anytime",
+      perks: "every tweak, plus 3HZ AI",
     },
   };
+
+  // Free / Pro / Ultra. "premium" is the old name for the single paid tier, so a
+  // session saved before the split still reads as Pro.
+  function planOf(raw) {
+    const t = String(raw || "").toLowerCase();
+    if (t.includes("ultra")) return { name: "ultra", label: "Ultra", paid: true, blurb: "everything plus 3HZ AI" };
+    if (t.includes("pro") || t.includes("premium")) return { name: "pro", label: "Pro", paid: true, blurb: "every tweak unlocked" };
+    return { name: "free", label: "Free", paid: false, blurb: "69 tweaks · 3HZ AI is Ultra" };
+  }
 
   const $ = (sel, root) => (root || document).querySelector(sel);
   const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
@@ -301,10 +307,10 @@
     if (navSignUp) navSignUp.hidden = signed;
     if (navAccount) navAccount.hidden = !signed;
     if (signed) {
-      const pro = session.user.tier === "premium";
+      const plan = planOf(session.user.tier);
       $("#navAccountLabel").textContent = session.user.email.split("@")[0];
-      $("#navPlan").textContent = pro ? "Pro" : "Free";
-      $("#navPlan").style.color = pro ? "#9ccbfa" : "";
+      $("#navPlan").textContent = plan.label;
+      $("#navPlan").style.color = plan.paid ? "#9ccbfa" : "";
     }
   }
 
@@ -376,14 +382,15 @@
   function paintAccount() {
     if (!session || !session.user) { acctTab("signin"); return; }
     const u = session.user;
-    const pro = u.tier === "premium";
+    const tier = planOf(u.tier);
     $("#acctEmail").textContent = u.email;
     $("#acctAvatar").textContent = (u.email[0] || "?").toUpperCase();
     const plan = $("#acctPlan");
-    plan.textContent = pro ? "Pro plan · everything unlocked" : "Free plan · 3HZ AI included";
-    plan.className = "acct-plan" + (pro ? " pro" : "");
+    plan.textContent = tier.label + " plan · " + tier.blurb;
+    plan.className = "acct-plan" + (tier.paid ? " pro" : "");
     $("#acctKey").textContent = u.licence || "No key yet";
-    $("#acctUpgrade").hidden = pro;
+    $("#acctUpgrade").hidden = tier.name === "ultra";
+    $("#acctUpgrade").textContent = tier.name === "pro" ? "Get Ultra — €3/mo" : "Get Pro — €1/mo";
     $("#copyAcctKey").hidden = !u.licence;
   }
 
@@ -534,6 +541,14 @@
   const payForm = $("#payForm");
   const payBtn = $("#payBtn");
   let currentTier = "pro";
+  let betaMode = false;      // true once the Worker says Stripe is not configured
+
+  function showBetaMode() {
+    betaMode = true;
+    const flag = $("#betaFlag");
+    if (flag) flag.hidden = false;
+    if (payBtn) payBtn.textContent = "Email my licence key";
+  }
 
   const money = (n) => "€" + n.toFixed(2);
   const perMonth = (n) => money(n) + " / mo";
@@ -542,12 +557,12 @@
     const t = TIERS[tier];
     if (!t) return;
     $("#modalTitle").textContent = "Checkout";
-    $("#modalSub").textContent = t.name + " · " + perMonth(t.price);
-    $("#orderTier").textContent = t.name;
+    $("#modalSub").textContent = t.name + " · " + perMonth(t.price) + " · " + t.perks;
+    $("#orderTier").textContent = t.name + " subscription";
     $("#orderPrice").textContent = perMonth(t.price);
     $("#orderUpdates").textContent = t.billing;
-    $("#orderTotal").textContent = money(0);
-    payBtn.textContent = "Email my licence key";
+    $("#orderTotal").textContent = money(t.price);
+    payBtn.textContent = betaMode ? "Email my licence key" : "Continue to Stripe";
     modalDone.hidden = true;
     modalForm.hidden = false;
   }
@@ -571,11 +586,12 @@
     if (lastFocus && lastFocus.focus) lastFocus.focus();
   }
 
+  // Buy -> the checkout card. The card collects the email (Stripe would too) and
+  // then asks the Worker for a Stripe subscription session.
   $$("[data-buy]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const tier = btn.dataset.buy;
-      const link = CONFIG.checkout[tier];
-      if (link) { window.location.href = link; return; }
+      if (!TIERS[tier]) return;
       openModal(tier);
     });
   });
@@ -594,6 +610,26 @@
       const emailField = $("#email");
       const email = emailField.value.trim();
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { emailField.focus(); return; }
+
+      // 1. the real path: the Worker opens a Stripe subscription session and the
+      //    page goes to Stripe's own checkout (the card never touches this page).
+      if (!betaMode) {
+        busy(payBtn, true, "Opening Stripe…");
+        const co = await api("/api/checkout", { email: email, tier: currentTier });
+        if (co.ok && co.data.url) {
+          window.location.href = co.data.url;
+          return;
+        }
+        busy(payBtn, false, "Continue to Stripe");
+        if (!(co.status === 501 || (co.data && co.data.needsSetup))) {
+          alert((co.data && co.data.error) || "Stripe did not accept that. Try again in a moment.");
+          return;
+        }
+        // 2. Stripe is not configured on the Worker yet: fall back to the
+        //    card-less handout so the page still works while it is being set up.
+        showBetaMode();
+      }
+
       busy(payBtn, true, "Mailing your key…");
       const r = await api("/api/purchase", { email: email, tier: currentTier });
       busy(payBtn, false, "Email my licence key");
@@ -613,7 +649,7 @@
       modalDone.hidden = false;
       $("#licenceKey").textContent = r.data.key;
       $("#doneCopy").textContent =
-        "Your " + TIERS[currentTier].name + " is active and the key is in " + email +
+        "Your " + TIERS[currentTier].name + " plan is active and the key is in " + email +
         ". Paste it into the app under Account → Have a key?";
       if (session && session.user && session.user.email === email) refreshSession();
     });
