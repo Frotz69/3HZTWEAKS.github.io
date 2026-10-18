@@ -258,8 +258,14 @@
   const yearEl = $("#year");
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
+  // The button is a plain link with the archive's own path in the markup, so it
+  // still downloads if this script never runs; the download attribute pins the
+  // saved filename, which keeps some browsers from opening the zip in a tab.
   const dl = $("#downloadBtn");
-  if (dl) dl.href = CONFIG.downloadUrl;
+  if (dl) {
+    dl.href = CONFIG.downloadUrl;
+    dl.setAttribute("download", CONFIG.downloadUrl.split("/").pop());
+  }
 
   /* ------------------------------------------------------------- accounts */
   // Everything account-shaped talks to the Worker in accounts_api/: it mails
