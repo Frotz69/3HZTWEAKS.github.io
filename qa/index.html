@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/styles.css?v=6">
+<link rel="stylesheet" href="assets/styles.css?v=7">
 </head>
 <body id="top">
 <div class="noise" aria-hidden="true"></div>
@@ -75,15 +75,69 @@
         assistant that thinks on your own hardware — on every plan, free included. No cloud, no API keys.
       </p>
       <div class="hero-cta reveal" style="--d:180ms">
-        <a class="btn primary" href="#download">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
-            <path d="M12 3v11m0 0 4-4m-4 4-4-4M4 19h16" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Download
-        </a>
+        <div class="dl-split">
+          <a class="btn primary dl-main" href="../download/3hzTweaks-Setup.zip" download="3hzTweaks-Setup.zip">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+              <path d="M12 3v11m0 0 4-4m-4 4-4-4M4 19h16" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Download
+          </a>
+          <button class="btn primary dl-caret" type="button"
+                  aria-expanded="false" aria-controls="dlMenuHero" aria-label="Choose Windows or macOS">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.7" aria-hidden="true">
+              <path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <nav class="dl-menu" id="dlMenuHero" aria-label="Download options">
+            <a class="dl-item" style="--i:0" href="../download/3hzTweaks-Setup.zip" download="3hzTweaks-Setup.zip">
+              <span class="dl-ico" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M3 5.7 10.2 4.7v6.6H3zM11.4 4.5 21 3.1v8.2h-9.6zM3 12.7h7.2v6.6L3 18.3zM11.4 12.7H21V21l-9.6-1.4z"/>
+                </svg>
+              </span>
+              <span class="dl-txt">
+                <strong>Windows <em class="dl-badge">recommended</em></strong>
+                <small>Installer · 10 &amp; 11, 64-bit · 3 MB</small>
+              </span>
+              <svg class="dl-go" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="m9 5 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a class="dl-item" style="--i:1" href="../download/3hzTweaks-Portable.zip" download="3hzTweaks-Portable.zip">
+              <span class="dl-ico" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                  <rect x="3" y="7" width="18" height="13" rx="2.5"/>
+                  <path d="M8 7V5.6A1.6 1.6 0 0 1 9.6 4h4.8A1.6 1.6 0 0 1 16 5.6V7M3 12h18" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span class="dl-txt">
+                <strong>Windows portable</strong>
+                <small>No installer · unzip anywhere · 2 MB</small>
+              </span>
+              <svg class="dl-go" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="m9 5 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a class="dl-item" style="--i:2" href="../download/3hzTweaks-macOS-source.zip" download="3hzTweaks-macOS-source.zip">
+              <span class="dl-ico" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M16.37 12.7c.02 2.9 2.54 3.86 2.57 3.88-.02.06-.4 1.37-1.32 2.72-.8 1.17-1.63 2.33-2.94 2.36-1.29.02-1.7-.76-3.17-.76-1.47 0-1.93.73-3.15.78-1.26.05-2.22-1.26-3.03-2.42-1.65-2.39-2.91-6.75-1.22-9.7.84-1.46 2.34-2.39 3.97-2.41 1.24-.02 2.4.83 3.16.83.75 0 2.17-1.03 3.66-.88.62.03 2.37.25 3.49 1.89-.09.06-2.08 1.22-2.02 3.71ZM13.9 3.6c.67-.81 1.12-1.94 1-3.07-.96.04-2.13.64-2.82 1.45-.62.72-1.16 1.87-1.02 2.98 1.07.08 2.17-.55 2.84-1.36Z"/>
+                </svg>
+              </span>
+              <span class="dl-txt">
+                <strong>macOS</strong>
+                <small>12+ · source build, ~1 min · 2 MB</small>
+              </span>
+              <svg class="dl-go" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="m9 5 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <p class="dl-note">Checksums for all three are in the <a href="#faq">FAQ</a>.</p>
+          </nav>
+        </div>
         <a class="btn ghost" href="#pricing">See pricing <span class="arrow">→</span></a>
       </div>
-      <p class="hero-meta reveal" style="--d:240ms">Windows 10 &amp; 11 · 3 MB installer · Free account, no card · <a href="#download">Windows or macOS</a></p>
+      <p class="hero-meta reveal" style="--d:240ms">Windows 10 &amp; 11 · 3 MB installer · Free account, no card</p>
     </div>
 
     <div class="hero-shot reveal" style="--d:300ms" data-tilt>
@@ -827,6 +881,6 @@
   </div>
 </div>
 
-<script src="assets/app.js?v=8"></script>
+<script src="assets/app.js?v=9"></script>
 </body>
 </html>

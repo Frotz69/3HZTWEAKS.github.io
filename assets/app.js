@@ -261,20 +261,20 @@
   // The button is a plain link with the archive's own path in the markup, so it
   // still downloads if this script never runs; the download attribute pins the
   // saved filename, which keeps some browsers from opening the zip in a tab.
-  const dl = $("#downloadBtn");
-  if (dl) {
-    dl.href = CONFIG.downloadUrl;
-    dl.setAttribute("download", CONFIG.downloadUrl.split("/").pop());
-  }
+  // Split download control, used twice on the page (hero and final call to
+  // action): the wide half downloads the Windows installer, the caret drops a
+  // menu with the portable zip and the macOS build. The menu is plain markup
+  // with real hrefs, so it works before this script runs; this only adds the
+  // open/close, the arrow, Escape and arrow-key movement.
+  document.querySelectorAll(".dl-split").forEach((split) => {
+    const main = split.querySelector(".dl-main");
+    const toggle = split.querySelector(".dl-caret");
+    const menu = split.querySelector(".dl-menu");
+    if (!main || !toggle || !menu) return;
 
-  // Split download control: the main button downloads the Windows installer,
-  // the caret opens a menu with the portable zip and the macOS build. The menu
-  // is plain markup with real hrefs, so it works before this script runs; this
-  // only adds the open/close, the arrow, Escape and arrow-key movement.
-  const split = $("#dlSplit");
-  const toggle = $("#dlToggle");
-  const menu = $("#dlMenu");
-  if (split && toggle && menu) {
+    main.href = CONFIG.downloadUrl;
+    main.setAttribute("download", CONFIG.downloadUrl.split("/").pop());
+
     const items = Array.prototype.slice.call(menu.querySelectorAll(".dl-item"));
     const isOpen = () => split.classList.contains("open");
     const setOpen = (open) => {
@@ -332,7 +332,7 @@
       const next = e.key === "ArrowDown" ? (at + 1) % items.length : (at - 1 + items.length) % items.length;
       items[next].focus();
     });
-  }
+  });
 
   /* ------------------------------------------------------------- accounts */
   // Everything account-shaped talks to the Worker in accounts_api/: it mails
