@@ -206,6 +206,13 @@ button { font: inherit; color: inherit; }
   border-left: 1px solid rgba(10, 16, 23, 0.14);
 }
 
+/* The caret borrows .btn.primary, whose hover state lifts it 1px and flares its
+   shadow. That lift is the little hop visitors see when the pointer crosses the
+   arrow, and the wide half beside it never moves, so here the arrow stays put:
+   hovering and pressing no longer translate it, and the rotation on open is the
+   only movement it keeps. The hover highlight itself is left to .btn.primary. */
+.dl-split .dl-caret:hover, .dl-split .dl-caret:active { transform: none; }
+
 .dl-caret svg { transition: transform 0.34s var(--ease); }
 .dl-split.open .dl-caret svg { transform: rotate(180deg); }
 
