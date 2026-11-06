@@ -54,8 +54,7 @@
       { id: 'spammer', name: 'Spammer', desc: 'Repeats a message on a delay.', settings: [range('Delay', 500, 5000, 2500, ' ms')] }
     ],
     Cosmetics: [
-      { id: 'hologram', name: 'Hologram', desc: 'Draws a client-side hologram of your skin beside you.', tag: 'render', settings: [range('Scale', 50, 200, 100, '%'), range('Opacity', 10, 100, 85, '%'), bool('Only in third person', true)] },
-      { id: 'skinchanger', name: 'Skin Changer', desc: 'Swaps your skin from a file or URL without touching the account.', settings: [bool('Slim model', true), bool('Apply to cape too'), range('Refresh', 1, 60, 5, ' s')] },
+      { id: 'holoskinchanger', name: 'Holo Skin Changer', desc: 'The client\u2019s existing skin module. This page does not model its settings.', tag: 'ghost', settings: [] },
       { id: 'resourcepacks', name: 'Resource Packs', desc: 'Browse, download and convert packs without leaving the game.', tag: 'live', settings: [bool('Auto-convert missing versions', true), bool('Verify textures after download', true)] }
     ]
   }
@@ -480,6 +479,7 @@
             </div>
             <p class="cgui-desc">${selected.desc}</p>
             <div class="cgui-set-body">
+              ${selected.settings.length === 0 ? '<div class="cgui-empty">No settings in this demo.</div>' : ''}
               ${selected.settings.map((setting, index) => {
                 const value = state.values[selected.id][index]
                 return setting.type === 'range'
