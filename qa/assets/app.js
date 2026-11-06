@@ -765,4 +765,420 @@
       }
     });
   }
+
+  /* ------------------------------------------------------------ bit quest */
+  // The nav's pixel person opens a full-screen game: seven moments in computing
+  // and one typed guess each. Points fall off with distance from the real year,
+  // older moments forgive a wider guess, and the traveller strides on by
+  // exactly as far as the guess was close. Local only - no request, no storage.
+  const arcadeModal = $("#arcadeModal");
+  const arcadeOpenBtn = $("#arcadeOpen");
+
+  if (arcadeModal && arcadeOpenBtn) {
+    const ROUNDS = 7;
+    const CLOCK = 20;              // seconds a moment stays open
+    const WALKER_Y = 262;          // the traveller's feet sit on the road
+    const WALK_FROM = 40;
+    const WALK_TO = 540;
+    const ERAS = ["Valves", "Transistors", "Mainframes", "Microchips", "Networks"];
+    const BANDS = ["band-exact", "band-close", "band-near", "band-rough", "band-off", "band-timeout"];
+    const VARIANTS = { "band-exact": 3, "band-close": 3, "band-near": 2, "band-rough": 2, "band-off": 3, "band-timeout": 1 };
+    const STATE_CLASSES = BANDS.concat(["v1", "v2", "v3"]);
+
+    // y is the year the moment happened; the whole game is guessing it.
+    const MOMENTS = [
+      { q: "The first Apple computer went on sale in…",
+        y: 1976,
+        f: "Steve Wozniak's Apple I was a $666.66 circuit board - case, keyboard and screen not included." },
+      { q: "IBM shipped its first personal computer in…",
+        y: 1981,
+        f: "The 5150 ran PC-DOS and set the shape every clone followed for a decade." },
+      { q: "ENIAC, the first general-purpose electronic computer, was shown to the public in…",
+        y: 1946,
+        f: "18,000 vacuum tubes, about 30 tonnes, and programs patched in by hand with cables." },
+      { q: "The C programming language appeared at Bell Labs in…",
+        y: 1972,
+        f: "Dennis Ritchie wrote it so Unix could move from one machine to another." },
+      { q: "The first website went live at CERN in…",
+        y: 1991,
+        f: "Tim Berners-Lee published the first page on 6 August 1991. It explained what the web was." },
+      { q: "Microsoft released Windows 95 in…",
+        y: 1995,
+        f: "The Start menu, the taskbar and a queue around the block at midnight." },
+      { q: "Apple announced the first iPhone in…",
+        y: 2007,
+        f: "It went on sale that June. The App Store arrived a year later." },
+      { q: "IBM announced the first hard disk drive, the RAMAC 305, in…",
+        y: 1956,
+        f: "Five megabytes, stacked on fifty platters, the size of two refrigerators." },
+      { q: "The transistor was invented at Bell Labs in…",
+        y: 1947,
+        f: "Bardeen, Brattain and Shockley replaced the vacuum tube and shrank everything after it." },
+      { q: "Ray Tomlinson sent the first networked email in…",
+        y: 1971,
+        f: "He picked the @ sign because it appeared in nobody's name." },
+      { q: "The first computer mouse was demonstrated in…",
+        y: 1968,
+        f: "Douglas Engelbart's was a wooden block with two metal wheels, on a stage in San Francisco." },
+      { q: "Google was founded in…",
+        y: 1998,
+        f: "Two Stanford students, a Menlo Park garage and a misspelling of googol." },
+      { q: "The first computer game, Tennis for Two, appeared in…",
+        y: 1958,
+        f: "An oscilloscope, an analogue computer and two knobs at Brookhaven National Laboratory." },
+      { q: "The Mosaic browser, the first popular one, arrived in…",
+        y: 1993,
+        f: "Inline images on a page - and the web stopped being text only." },
+      { q: "Alan Turing's paper on computable numbers was published in…",
+        y: 1936,
+        f: "It described a machine that reads symbols from a tape. We still call it the Turing machine." },
+      { q: "USB 1.0 was released in…",
+        y: 1996,
+        f: "12 Mbit/s, one plug, and the beginning of the end for the serial port." },
+      { q: "The first 1 GHz desktop processor launched in…",
+        y: 2000,
+        f: "AMD's Athlon crossed the line a few days ahead of Intel's Pentium III." },
+      { q: "Raspberry Pi went on sale in…",
+        y: 2012,
+        f: "A $35 board built to get a generation programming again." },
+      { q: "Ada Lovelace's notes on the Analytical Engine were published in…",
+        y: 1843,
+        f: "They contain the first published algorithm, written for a machine that was never built." },
+    ];
+
+    const RANKS = [
+      [700, "Kernel developer"],
+      [600, "Systems engineer"],
+      [450, "Power user"],
+      [250, "Script kiddie"],
+      [0, "Packet loss"],
+    ];
+
+    const screenEl = $(".arcade-screen");
+    const scene = $("#arcadeScene");
+    const walker = $("#arcadeWalker");
+    const scoreEl = $("#arcadeScore");
+    const roundEl = $("#arcadeRound");
+    const eraEl = $("#arcadeEra");
+    const pipsEl = $("#arcadePips");
+    const startEl = $("#arcadeStart");
+    const quizEl = $("#arcadeQuiz");
+    const qEl = $("#arcadeQ");
+    const formEl = $("#arcadeForm");
+    const guessEl = $("#arcadeGuess");
+    const clockEl = $("#arcadeClock");
+    const clockFill = $("#arcadeClockFill");
+    const revealEl = $("#arcadeReveal");
+    const guessOut = $("#arcadeGuessOut");
+    const answerOut = $("#arcadeAnswerOut");
+    const ptsEl = $("#arcadePts");
+    const factEl = $("#arcadeFact");
+    const nextBtn = $("#arcadeNext");
+    const endEl = $("#arcadeEnd");
+    const startBtn = $("#arcadePlay");
+    const againBtn = $("#arcadePlay2");
+    const bankEl = $("#arcadeBank");
+    const rankEl = $("#arcadeRank");
+    const dotsEl = $("#arcadeDots");
+
+    let deck = [];
+    let turn = 0;
+    let score = 0;
+    let results = [];
+    let locked = true;
+    let frame = 0;
+    let endsAt = 0;
+    let lastSpot = null;
+    let progress = 0;            // 0..1 of the way along the road
+    let bandTimer = 0;
+
+    function shuffle(list) {
+      const copy = list.slice();
+      for (let i = copy.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const held = copy[i];
+        copy[i] = copy[j];
+        copy[j] = held;
+      }
+      return copy;
+    }
+
+    // Progress, not rounds, decides both the walk and the sky: a way-off guess
+    // barely moves him, an exact one carries him a full seventh of the road.
+    function drawWalker() {
+      const x = WALK_FROM + progress * (WALK_TO - WALK_FROM);
+      walker.style.transform = "translate(" + x.toFixed(1) + "px, " + WALKER_Y + "px)";
+    }
+
+    function resetWalk() {
+      progress = 0;
+      walker.style.transition = "none";
+      drawWalker();
+      void walker.getBoundingClientRect();
+      walker.style.transition = "";
+    }
+
+    function travel(points) {
+      progress = Math.min(1, progress + (points / 100) / ROUNDS);
+      drawWalker();
+      setEra(progress);
+    }
+
+    function setEra(at) {
+      const era = Math.min(4, Math.floor(at * 5));
+      scene.className = "arcade-scene era-" + (era + 1);
+      eraEl.textContent = ERAS[era];
+    }
+
+    function buildPips() {
+      pipsEl.innerHTML = "";
+      for (let i = 0; i < ROUNDS; i += 1) pipsEl.appendChild(document.createElement("i"));
+    }
+
+    function pipClass(points) {
+      if (points === 100) return "on";
+      if (points >= 30) return "close";
+      return "miss";
+    }
+
+    function markPip(index, points) {
+      const pip = pipsEl.children[index];
+      if (!pip) return;
+      pip.className = pipClass(points);
+      void pip.offsetWidth;
+      pip.classList.add("pop");
+    }
+
+    // Bands widen for older moments: guessing 1843 within a couple of years is
+    // much harder than guessing 2012 within a couple of years.
+    function judge(guess, year) {
+      const diff = Math.abs(guess - year);
+      const span = year < 1900 ? 12 : year < 1950 ? 5 : 3;
+      if (diff === 0) return { points: 100, band: "Exact", kind: "band-exact" };
+      if (diff <= span) return { points: 85, band: "Close", kind: "band-close" };
+      if (diff <= span * 4) return { points: 60, band: "Near", kind: "band-near" };
+      if (diff <= span * 10) return { points: 30, band: "Rough", kind: "band-rough" };
+      return { points: 10, band: "Way off", kind: "band-off" };
+    }
+
+    // One class on the screen drives the whole reaction: the flash over the sky,
+    // the traveller's jump or stumble, and the shake on a bad guess.
+    function react(kind) {
+      STATE_CLASSES.forEach((name) => screenEl.classList.remove(name));
+      void screenEl.offsetWidth;
+      const count = VARIANTS[kind] || 1;
+      screenEl.classList.add(kind, "v" + (1 + Math.floor(Math.random() * count)));
+      clearTimeout(bandTimer);
+      bandTimer = setTimeout(() => STATE_CLASSES.forEach((name) => screenEl.classList.remove(name)), 1500);
+    }
+
+    // He grins when the year lands, and frowns with a tear when it does not.
+    function setMood(points) {
+      walker.classList.remove("mood-happy", "mood-sad");
+      walker.classList.add(points >= 85 ? "mood-happy" : "mood-sad");
+    }
+
+    function clearMood() {
+      walker.classList.remove("mood-happy", "mood-sad");
+    }
+
+    // An interval rather than animation frames: a backgrounded tab stops
+    // painting, and the moment should still close when its time is up.
+    function stopClock() {
+      if (frame) clearInterval(frame);
+      frame = 0;
+    }
+
+    function runClock() {
+      stopClock();
+      endsAt = Date.now() + CLOCK * 1000;
+      const tick = () => {
+        const left = Math.max(0, endsAt - Date.now());
+        clockFill.textContent = String(Math.ceil(left / 1000));
+        clockEl.classList.toggle("warn", left <= 6000);
+        if (left <= 0) {
+          stopClock();
+          answer(-1);
+        }
+      };
+      tick();
+      frame = setInterval(tick, 100);
+    }
+
+    function renderTurn() {
+      const item = deck[turn];
+      locked = false;
+      qEl.textContent = item.q;
+      roundEl.textContent = String(turn + 1);
+      guessEl.value = "";
+      guessEl.disabled = false;
+      formEl.hidden = false;
+      revealEl.hidden = true;
+      formEl.classList.remove("nudge");
+      setTimeout(() => guessEl.focus(), 80);
+      runClock();
+    }
+
+    function nudge() {
+      formEl.classList.remove("nudge");
+      void formEl.offsetWidth;
+      formEl.classList.add("nudge");
+      guessEl.focus();
+    }
+
+    function submitGuess() {
+      if (locked) return;
+      const guess = parseInt(guessEl.value, 10);
+      if (!guess || guess < 1700 || guess > 2100) {
+        nudge();
+        return;
+      }
+      answer(guess);
+    }
+
+    function answer(guess) {
+      if (locked) return;
+      locked = true;
+      stopClock();
+
+      const item = deck[turn];
+      const timedOut = guess === -1;
+      const verdict = timedOut
+        ? { points: 0, band: "Out of time", kind: "band-timeout" }
+        : judge(guess, item.y);
+
+      score += verdict.points;
+      results[turn] = verdict.points;
+      scoreEl.textContent = String(score);
+      markPip(turn, verdict.points);
+      travel(verdict.points);
+      react(verdict.kind);
+      setMood(verdict.points);
+
+      guessEl.disabled = true;
+      guessOut.textContent = timedOut ? "—" : String(guess);
+      answerOut.textContent = String(item.y);
+      ptsEl.textContent = verdict.band + " · +" + verdict.points;
+      ptsEl.className = "arcade-points" + (verdict.points < 30 ? " zero" : "");
+      factEl.textContent = item.f;
+      formEl.hidden = true;
+      revealEl.hidden = false;
+
+      nextBtn.textContent = turn === ROUNDS - 1 ? "See the result ▶" : "Next ▶";
+      nextBtn.focus();
+    }
+
+    function finish() {
+      locked = true;
+      stopClock();
+      quizEl.hidden = true;
+      startEl.hidden = true;
+      endEl.hidden = false;
+      bankEl.textContent = score + " / " + ROUNDS * 100;
+      rankEl.textContent = RANKS.find((rank) => score >= rank[0])[1];
+      dotsEl.innerHTML = "";
+      results.forEach((points) => {
+        const dot = document.createElement("i");
+        dot.className = pipClass(points);
+        dotsEl.appendChild(dot);
+      });
+      againBtn.focus();
+    }
+
+    function next() {
+      turn += 1;
+      if (turn >= ROUNDS) {
+        finish();
+        return;
+      }
+      renderTurn();
+    }
+
+    function start() {
+      deck = shuffle(MOMENTS).slice(0, ROUNDS);
+      turn = 0;
+      score = 0;
+      results = [];
+      scoreEl.textContent = "0";
+      roundEl.textContent = "1";
+      buildPips();
+      resetWalk();
+      setEra(0);
+      clearMood();
+      startEl.hidden = true;
+      endEl.hidden = true;
+      quizEl.hidden = false;
+      renderTurn();
+    }
+
+    function showStart() {
+      stopClock();
+      locked = true;
+      deck = [];
+      score = 0;
+      turn = 0;
+      scoreEl.textContent = "0";
+      roundEl.textContent = "1";
+      buildPips();
+      resetWalk();
+      setEra(0);
+      clearMood();
+      startEl.hidden = false;
+      quizEl.hidden = true;
+      endEl.hidden = true;
+      startBtn.focus();
+    }
+
+    function openArcade() {
+      if (arcadeModal.classList.contains("open")) return;
+      lastSpot = document.activeElement;
+      arcadeModal.classList.add("open");
+      arcadeModal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      showStart();
+    }
+
+    function closeArcade() {
+      if (!arcadeModal.classList.contains("open")) return;
+      stopClock();
+      clearTimeout(bandTimer);
+      STATE_CLASSES.forEach((name) => screenEl.classList.remove(name));
+      arcadeModal.classList.remove("open");
+      arcadeModal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+      if (lastSpot && lastSpot.focus) lastSpot.focus();
+    }
+
+    guessEl.addEventListener("input", () => {
+      guessEl.value = guessEl.value.replace(/\D/g, "").slice(0, 4);
+    });
+
+    formEl.addEventListener("submit", (e) => {
+      e.preventDefault();
+      submitGuess();
+    });
+
+    arcadeOpenBtn.addEventListener("click", openArcade);
+    $("#arcadeClose").addEventListener("click", closeArcade);
+    startBtn.addEventListener("click", start);
+    againBtn.addEventListener("click", start);
+    nextBtn.addEventListener("click", next);
+
+    document.addEventListener("keydown", (e) => {
+      if (!arcadeModal.classList.contains("open")) return;
+      if (e.key === "Escape") { closeArcade(); return; }
+      if (!startEl.hidden) {
+        if (e.key === "Enter" || e.key === " ") {
+          if (document.activeElement !== startBtn) { e.preventDefault(); start(); }
+        }
+        return;
+      }
+      if (!revealEl.hidden) {
+        if ((e.key === "Enter" || e.key === " ") && document.activeElement !== nextBtn) {
+          e.preventDefault();
+          next();
+        }
+      }
+    });
+  }
 })();

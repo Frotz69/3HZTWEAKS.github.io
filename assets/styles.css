@@ -1492,3 +1492,666 @@ footer {
 
 /* the .btn display rule outranks the browser's [hidden], so say it again */
 .nav-cta [hidden], .modal [hidden], .acct-key [hidden] { display: none !important; }
+
+/* ------------------------------------------------------------ bit quest ---- */
+/* The pixel person in the nav, and the full-screen game he opens: guess the
+   year of seven moments in computing. Own palette on purpose - dusk sky,
+   chunky pixel type, yellow buttons. */
+
+:root {
+  --pixel: "Silkscreen", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --arcade-ink: #17120a;
+  --arcade-cream: #f7efdc;
+  --arcade-panel: rgba(24, 20, 48, 0.94);
+  --arcade-edge: #514881;
+  --arcade-edge-soft: rgba(150, 132, 224, 0.28);
+  --arcade-yellow: #ffe066;
+  --arcade-mint: #7ef0c4;
+}
+
+.pixel-guy,
+.arcade-scene {
+  --px-ink: #0b1119;
+  --px-band: #2f3d4f;
+  --px-cup: #5ba8f0;
+  --px-cap: #263243;
+  --px-skin: #f0c49b;
+  --px-eye: #0b1119;
+  --px-mouth: #cf8f6b;
+  --px-hood: #3f7fbf;
+  --px-hood-light: #7cc0ff;
+  --px-pants: #22303f;
+  --px-shoe: #e8f1fb;
+}
+
+/* the nav sprite --------------------------------------------------------- */
+.nav-links { align-items: center; }
+
+.pixel-guy {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: radial-gradient(120% 90% at 50% 0%, rgba(91, 168, 240, 0.2), rgba(255, 255, 255, 0.02));
+  cursor: pointer;
+  transition: transform 0.3s var(--ease), border-color 0.3s var(--ease), box-shadow 0.3s var(--ease);
+}
+
+.pixel-guy--nav { width: 30px; height: 38px; margin-left: 2px; }
+
+.pixel-guy svg {
+  display: block;
+  width: 22px;
+  height: 28px;
+  shape-rendering: crispEdges;
+}
+
+.pixel-guy-sprite { display: block; animation: px-idle 1.8s steps(2, end) infinite; }
+
+.pixel-guy:hover {
+  transform: translateY(-2px);
+  border-color: rgba(91, 168, 240, 0.45);
+  box-shadow: 0 12px 22px -14px rgba(91, 168, 240, 0.8);
+}
+
+.pixel-guy:active { transform: translateY(0); }
+.pixel-guy:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.pixel-guy::after {
+  content: "PLAY";
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 7px);
+  transform: translate(-50%, -4px);
+  padding: 4px 7px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: #0d141d;
+  color: var(--accent-soft);
+  font-family: var(--pixel);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.pixel-guy:hover::after,
+.pixel-guy:focus-visible::after { opacity: 1; transform: translate(-50%, 0); }
+
+@keyframes px-idle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@media (max-width: 980px) {
+  .nav.open .pixel-guy--nav { justify-self: start; margin: 4px 0 6px 12px; }
+}
+
+/* the game, full screen --------------------------------------------------- */
+.modal.arcade {
+  display: block;
+  padding: 0;
+  background: #0a0812;
+  backdrop-filter: none;
+}
+
+.arcade-screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #0a0812;
+  font-family: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+.arcade-scene { position: absolute; inset: 0; }
+
+.arcade-scene svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  shape-rendering: crispEdges;
+}
+
+.arcade-scene {
+  --sky-1: #140c2b;
+  --sky-2: #4b2a5a;
+  --sky-3: #b25f66;
+  --hill-1: #58385c;
+  --hill-2: #1e1228;
+  --star: #ffe9cf;
+  --sun: #ffd7ae;
+}
+
+.arcade-scene.era-2 { --sky-1: #05101a; --sky-2: #0c2434; --sky-3: #17546b; --hill-1: #184a5d; --hill-2: #06131b; --star: #d6f2ff; --sun: #96dcff; }
+.arcade-scene.era-3 { --sky-1: #0e0a24; --sky-2: #221444; --sky-3: #4a2a7a; --hill-1: #3a2160; --hill-2: #120c22; --star: #e7dcff; --sun: #bda6ff; }
+.arcade-scene.era-4 { --sky-1: #170f07; --sky-2: #34200e; --sky-3: #7a4517; --hill-1: #5a3512; --hill-2: #17100a; --star: #ffe9c2; --sun: #ffb45b; }
+.arcade-scene.era-5 { --sky-1: #04131a; --sky-2: #0a2830; --sky-3: #0f5560; --hill-1: #10474f; --hill-2: #051619; --star: #c8f4ff; --sun: #5fd6a8; }
+
+/* a light CRT grain, deliberately faint so the sky stays clean */
+.arcade-scan {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.32;
+  background:
+    repeating-linear-gradient(180deg, rgba(8, 4, 16, 0.14) 0 1px, transparent 1px 3px),
+    radial-gradient(140% 110% at 50% 42%, transparent 62%, rgba(6, 4, 14, 0.5));
+}
+
+/* hud -------------------------------------------------------------------- */
+.arcade-top {
+  position: absolute;
+  z-index: 4;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.arcade-right { display: flex; align-items: flex-start; gap: 8px; }
+
+.arcade-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 11px;
+  border: 2px solid var(--arcade-edge);
+  background: rgba(26, 20, 52, 0.92);
+  color: var(--arcade-cream);
+  font-family: var(--pixel);
+  font-size: 11px;
+  line-height: 1;
+  box-shadow: 0 3px 0 rgba(9, 7, 20, 0.85);
+  white-space: nowrap;
+}
+
+.arcade-chip b { color: var(--arcade-yellow); font-weight: 400; }
+.arcade-chip span { color: #b9aee6; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; }
+
+.arcade-pips {
+  position: absolute;
+  left: 50%;
+  top: 5px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 5px;
+}
+
+.arcade-pips i {
+  width: 13px;
+  height: 13px;
+  border: 2px solid var(--arcade-edge);
+  background: rgba(12, 9, 26, 0.85);
+}
+
+.arcade-pips i.on { background: var(--arcade-mint); border-color: #37b98e; }
+.arcade-pips i.close { background: var(--arcade-yellow); border-color: #b99b2e; }
+.arcade-pips i.miss { background: #f08a8a; border-color: #c25f5f; }
+
+.arcade-close {
+  width: 33px;
+  height: 33px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--arcade-edge);
+  background: rgba(26, 20, 52, 0.92);
+  color: var(--arcade-cream);
+  font-family: var(--pixel);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 0 3px 0 rgba(9, 7, 20, 0.85);
+}
+
+.arcade-close:hover { background: var(--arcade-yellow); border-color: var(--arcade-ink); color: var(--arcade-ink); }
+.arcade-close:focus-visible { outline: 2px solid var(--arcade-mint); outline-offset: 3px; }
+
+/* stages ----------------------------------------------------------------- */
+.arcade-stage {
+  position: absolute;
+  z-index: 3;
+  inset: 76px 20px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.arcade-stage--start { gap: 14px; }
+.arcade-stage--end { gap: 14px; }
+.arcade-stage--quiz { justify-content: flex-start; }
+
+.arcade-title {
+  margin: 0;
+  font-family: var(--pixel);
+  font-size: clamp(32px, 8vw, 78px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--arcade-yellow);
+  text-shadow: 0 0 24px rgba(255, 224, 102, 0.38), 0 5px 0 #7a5f11;
+}
+
+.arcade-sub {
+  margin: 0;
+  font-family: var(--pixel);
+  font-size: clamp(10px, 1.5vw, 15px);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--arcade-cream);
+}
+
+.arcade-rules { margin: 0; font-size: 13.5px; color: #ded5f6; }
+
+.arcade-bands {
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.arcade-bands li {
+  padding: 3px 7px;
+  border: 2px solid rgba(12, 9, 26, 0.55);
+  font-family: var(--pixel);
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  color: var(--arcade-ink);
+  background: var(--arcade-cream);
+}
+
+.arcade-bands b { font-weight: 400; }
+.arcade-bands .exact { background: #9df0c2; }
+.arcade-bands .close { background: #8fd8ea; }
+.arcade-bands .near { background: #f6efd2; }
+.arcade-bands .rough { background: #f3d98f; }
+.arcade-bands .else { background: #ef9fb4; }
+
+.arcade-hint {
+  margin: 0;
+  font-family: var(--pixel);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  color: rgba(228, 220, 250, 0.66);
+}
+
+/* question --------------------------------------------------------------- */
+.arcade-mid {
+  width: 100%;
+  margin: auto 0;
+  display: grid;
+  place-items: center;
+}
+
+.arcade-question {
+  max-width: min(720px, 92vw);
+  margin: 0;
+  padding: 22px 28px;
+  font-family: var(--pixel);
+  font-size: clamp(13px, 1.9vw, 21px);
+  line-height: 1.8;
+  color: var(--arcade-cream);
+  background: var(--arcade-panel);
+  border: 3px solid var(--arcade-edge);
+  box-shadow: 0 0 0 3px rgba(8, 6, 18, 0.9), inset 0 0 0 2px var(--arcade-edge-soft), 0 18px 44px rgba(0, 0, 0, 0.5);
+}
+
+/* the guess -------------------------------------------------------------- */
+.arcade-controls {
+  width: min(560px, 100%);
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+}
+
+.arcade-answer {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 8px;
+  width: 100%;
+  align-items: stretch;
+}
+
+.arcade-timerbox {
+  width: 56px;
+  min-height: 46px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--arcade-mint);
+  background: rgba(9, 18, 24, 0.92);
+  box-shadow: 0 3px 0 rgba(8, 6, 18, 0.8);
+}
+
+.arcade-timerbox b {
+  font-family: var(--pixel);
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--arcade-mint);
+}
+
+.arcade-timerbox.warn { border-color: #ffb36b; }
+.arcade-timerbox.warn b { color: #ffb36b; }
+
+.arcade-year {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 2px solid var(--arcade-edge);
+  background: rgba(24, 20, 48, 0.94);
+  color: var(--arcade-cream);
+  font-family: var(--pixel);
+  font-size: 17px;
+  letter-spacing: 0.22em;
+  text-align: center;
+  text-indent: 0.22em;
+  outline: none;
+  box-shadow: 0 3px 0 rgba(8, 6, 18, 0.85);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.arcade-year::placeholder { color: #8c81b8; letter-spacing: 0.08em; text-indent: 0; }
+.arcade-year:focus { border-color: var(--arcade-mint); box-shadow: 0 3px 0 rgba(8, 6, 18, 0.85), 0 0 0 3px rgba(126, 240, 196, 0.16); }
+
+.arcade-answer .arcade-go { padding: 0 20px; }
+
+.arcade-answer.nudge { animation: arcade-nudge 0.28s steps(2, end); }
+
+@keyframes arcade-nudge {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.arcade-result {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  justify-items: center;
+}
+
+.arcade-verdict { display: flex; align-items: center; gap: 18px; }
+
+.arcade-verdict span { display: grid; gap: 3px; justify-items: center; }
+
+.arcade-verdict em {
+  font-style: normal;
+  font-family: var(--pixel);
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9d92c9;
+}
+
+.arcade-verdict b {
+  font-family: var(--pixel);
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--arcade-cream);
+}
+
+.arcade-points {
+  padding: 6px 10px;
+  border: 2px solid var(--arcade-mint);
+  font-family: var(--pixel);
+  font-size: 12px;
+  color: var(--arcade-mint);
+  white-space: nowrap;
+}
+
+.arcade-points.zero { border-color: var(--arcade-edge); color: #9d92c9; }
+
+.arcade-fact {
+  max-width: 100%;
+  margin: 0;
+  padding: 11px 15px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: #ddd6f7;
+  background: rgba(14, 11, 30, 0.9);
+  border-left: 3px solid var(--arcade-yellow);
+  text-align: left;
+}
+
+.arcade-go {
+  padding: 13px 24px;
+  border: 3px solid var(--arcade-ink);
+  background: var(--arcade-yellow);
+  color: var(--arcade-ink);
+  font-family: var(--pixel);
+  font-size: clamp(11px, 1.4vw, 15px);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  box-shadow: 0 5px 0 #9e8223, 0 18px 30px rgba(0, 0, 0, 0.35);
+  transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+}
+
+.arcade-go:hover { background: #ffe888; transform: translateY(-1px); box-shadow: 0 6px 0 #9e8223, 0 20px 34px rgba(0, 0, 0, 0.4); }
+.arcade-go:active { transform: translateY(3px); box-shadow: 0 2px 0 #9e8223; }
+.arcade-go:focus-visible { outline: 3px solid var(--arcade-mint); outline-offset: 3px; }
+
+/* result ----------------------------------------------------------------- */
+.arcade-bank {
+  font-family: var(--pixel);
+  font-size: clamp(30px, 7vw, 60px);
+  line-height: 1.1;
+  color: var(--arcade-cream);
+  text-shadow: 0 5px 0 rgba(0, 0, 0, 0.4);
+}
+
+.arcade-rank {
+  margin: 0;
+  font-family: var(--pixel);
+  font-size: clamp(10px, 1.5vw, 14px);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--arcade-mint);
+}
+
+.arcade-dots { display: flex; gap: 6px; }
+
+.arcade-dots i {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--arcade-edge);
+  background: rgba(12, 9, 26, 0.85);
+}
+
+.arcade-dots i.on { background: var(--arcade-mint); border-color: #37b98e; }
+.arcade-dots i.close { background: var(--arcade-yellow); border-color: #b99b2e; }
+
+@media (max-width: 700px) {
+  .arcade-stage { inset: 64px 12px 14px; }
+  .arcade-question { padding: 14px 16px; font-size: 12px; }
+  .arcade-chip { padding: 6px 8px; font-size: 9px; }
+  .arcade-pips { top: 3px; }
+  .arcade-pips i { width: 10px; height: 10px; }
+  .arcade-close { width: 28px; height: 28px; font-size: 9px; }
+  .arcade-go { padding: 11px 16px; }
+  .arcade-timerbox { width: 46px; min-height: 42px; }
+  .arcade-year { min-height: 42px; font-size: 15px; }
+  .arcade-verdict { gap: 12px; }
+}
+
+/* reactions ----------------------------------------------------------------
+   The closer the guess, the further he strides - stepped, so it reads pixel.
+   !important on purpose: the site flattens motion under prefers-reduced-motion
+   and this game's reaction is its feedback (the words say the same thing). */
+#arcadeWalker { transition: transform 0.9s steps(9, end) !important; }
+
+.arcade-walker-react { transform-box: fill-box; transform-origin: 50% 100%; }
+
+.arcade-walker-bob { animation: px-bob 1.2s steps(2, end) infinite !important; }
+
+@keyframes px-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1.5px); }
+}
+
+/* the mood lives on the traveller: a grin for a good guess, a frown and tears
+   for a bad one */
+.arcade-face--happy, .arcade-face--sad { display: none; }
+.mood-happy .arcade-face--idle, .mood-sad .arcade-face--idle { display: none; }
+.mood-happy .arcade-face--happy, .mood-sad .arcade-face--sad { display: inline; }
+
+/* little notes drifting off the headphones */
+.arcade-notes .note { fill: #9fd8ff; opacity: 0; }
+.note-1 { animation: note-float 3.4s steps(10, end) infinite !important; }
+.note-2 { animation: note-float 4.2s steps(12, end) infinite 1.3s !important; }
+.note-3 { animation: note-float 3.8s steps(10, end) infinite 2.5s !important; }
+
+@keyframes note-float {
+  0% { opacity: 0; transform: translate(0, 0); }
+  14% { opacity: 1; }
+  70% { opacity: 0.85; }
+  100% { opacity: 0; transform: translate(5px, -12px); }
+}
+
+.arcade-burst {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.band-exact .arcade-burst { background: radial-gradient(circle at 50% 64%, rgba(126, 240, 196, 0.5), rgba(126, 240, 196, 0) 60%); animation: arcade-burst 0.9s ease-out !important; }
+.band-close .arcade-burst { background: radial-gradient(circle at 50% 64%, rgba(200, 242, 168, 0.34), rgba(200, 242, 168, 0) 58%); animation: arcade-burst 0.75s ease-out !important; }
+.band-near .arcade-burst { background: radial-gradient(circle at 50% 64%, rgba(255, 224, 102, 0.24), rgba(255, 224, 102, 0) 56%); animation: arcade-burst 0.65s ease-out !important; }
+.band-rough .arcade-burst { background: radial-gradient(circle at 50% 64%, rgba(255, 179, 107, 0.2), rgba(255, 179, 107, 0) 56%); animation: arcade-burst 0.65s ease-out !important; }
+.band-off .arcade-burst { background: radial-gradient(circle at 50% 64%, rgba(240, 120, 140, 0.38), rgba(240, 120, 140, 0) 62%); animation: arcade-burst 0.75s ease-out !important; }
+.band-timeout .arcade-burst { background: radial-gradient(circle at 50% 64%, rgba(140, 130, 190, 0.26), rgba(140, 130, 190, 0) 60%); animation: arcade-burst 0.9s ease-out !important; }
+
+@keyframes arcade-burst {
+  0% { opacity: 0; }
+  22% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* every band has a few reactions, picked at random, so no two answers move
+   exactly alike */
+.band-exact.v1 .arcade-walker-react { animation: px-jump 0.62s steps(2, end) 2 !important; }
+.band-exact.v2 .arcade-walker-react { animation: px-spin 0.7s steps(6, end) 1 !important; }
+.band-exact.v3 .arcade-walker-react { animation: px-cheer 0.5s steps(2, end) 2 !important; }
+
+.band-close.v1 .arcade-walker-react { animation: px-hop 0.42s steps(2, end) 1 !important; }
+.band-close.v2 .arcade-walker-react { animation: px-double-hop 0.6s steps(2, end) 1 !important; }
+.band-close.v3 .arcade-walker-react { animation: px-sway 0.55s steps(2, end) 2 !important; }
+
+.band-near.v1 .arcade-walker-react { animation: px-dip 0.4s steps(2, end) 1 !important; }
+.band-near.v2 .arcade-walker-react { animation: px-nod 0.3s steps(2, end) 2 !important; }
+
+.band-rough.v1 .arcade-walker-react { animation: px-slump 0.5s steps(2, end) 1 !important; }
+.band-rough.v2 .arcade-walker-react { animation: px-lean 0.45s steps(2, end) 1 !important; }
+
+.band-off.v1 .arcade-walker-react { animation: px-wobble 0.5s steps(2, end) 2 !important; }
+.band-off.v2 .arcade-walker-react { animation: px-stumble 0.6s steps(2, end) 1 !important; }
+.band-off.v3 .arcade-walker-react { animation: px-shudder 0.28s steps(2, end) 3 !important; }
+
+.band-timeout.v1 .arcade-walker-react { animation: px-slump 0.6s steps(2, end) 1 !important; }
+
+@keyframes px-jump {
+  0%, 100% { transform: translateY(0); }
+  42% { transform: translateY(-15px); }
+}
+
+@keyframes px-spin {
+  0% { transform: rotate(0deg) translateY(0); }
+  50% { transform: rotate(180deg) translateY(-11px); }
+  100% { transform: rotate(360deg) translateY(0); }
+}
+
+@keyframes px-cheer {
+  0%, 100% { transform: scale(1, 1) translateY(0); }
+  35% { transform: scale(1.14, 0.88) translateY(3px); }
+  70% { transform: scale(0.92, 1.12) translateY(-7px); }
+}
+
+@keyframes px-hop {
+  0%, 100% { transform: translateY(0); }
+  45% { transform: translateY(-7px); }
+}
+
+@keyframes px-double-hop {
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-7px); }
+  50% { transform: translateY(0); }
+  75% { transform: translateY(-4px); }
+}
+
+@keyframes px-sway {
+  0%, 100% { transform: rotate(0deg); }
+  30% { transform: rotate(-5deg); }
+  70% { transform: rotate(5deg); }
+}
+
+@keyframes px-dip {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  50% { transform: translateY(2px) scaleY(0.97); }
+}
+
+@keyframes px-nod {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  50% { transform: translateY(3px) scaleY(0.95); }
+}
+
+@keyframes px-slump {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  45% { transform: translateY(4px) scaleY(0.86); }
+}
+
+@keyframes px-lean {
+  0%, 100% { transform: rotate(0deg) translateX(0); }
+  40% { transform: rotate(-9deg) translateX(-4px); }
+}
+
+@keyframes px-wobble {
+  0%, 100% { transform: rotate(0deg) translateX(0); }
+  25% { transform: rotate(-6deg) translateX(-3px); }
+  75% { transform: rotate(6deg) translateX(3px); }
+}
+
+@keyframes px-stumble {
+  0%, 100% { transform: rotate(0deg) translate(0, 0); }
+  45% { transform: rotate(12deg) translate(4px, 6px); }
+}
+
+@keyframes px-shudder {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
+/* a bad guess rattles the whole screen; a good one never does */
+.band-off, .band-timeout { animation: arcade-shake 0.34s steps(2, end) 1 !important; }
+
+@keyframes arcade-shake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-6px, 2px); }
+  40% { transform: translate(5px, -2px); }
+  60% { transform: translate(-4px, 1px); }
+  80% { transform: translate(3px, -1px); }
+}
+
+.arcade-pips i.pop { animation: pip-pop 0.5s steps(2, end) 1 !important; }
+
+@keyframes pip-pop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.55); }
+  100% { transform: scale(1); }
+}

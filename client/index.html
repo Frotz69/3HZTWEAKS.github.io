@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3HZ Client — a Minecraft client with its own native launcher</title>
+<meta name="description" content="3HZ Client is a Fabric Minecraft client built on the LiquidBounce NextGen codebase, renamed end to end, with a single-window ClickGUI and a native C++ launcher in Win32 + DirectX 11 + Dear ImGui.">
+<meta name="theme-color" content="#07090d">
+<meta property="og:title" content="3HZ Client — Fabric, with a native launcher">
+<meta property="og:description" content="A Minecraft client renamed end to end, a single-window ClickGUI, and a C++ launcher that actually starts the game.">
+<meta property="og:type" content="website">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/hub.css">
+<link rel="stylesheet" href="../assets/clickgui.css">
+<style>
+  :root { --accent: #a78bfa; --accent-soft: #c4b5fd; }
+  .btn.primary { color: #150a2b; }
+  .split { display: grid; grid-template-columns: 1fr 1.1fr; gap: 40px; align-items: center; }
+  .hero-launcher { margin-top: 0; }
+  .swatches { display: flex; gap: 8px; margin-top: 18px; }
+  .swatch { width: 34px; height: 34px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.12); }
+  .faq { margin-top: 34px; border-top: 1px solid var(--line); }
+  .faq details { border-bottom: 1px solid var(--line); padding: 16px 2px; }
+  .faq summary { cursor: pointer; font-size: 14.5px; font-weight: 550; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; color: var(--accent); font-family: var(--mono); }
+  .faq details[open] summary::after { content: "−"; }
+  .faq p { margin: 10px 0 0; color: var(--dim); font-size: 13.5px; max-width: 760px; }
+  .status { display: inline-flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--dim); border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; }
+  .status i { width: 6px; height: 6px; border-radius: 50%; background: #ffd79a; box-shadow: 0 0 10px #ffd79a; }
+  .caption { margin-top: 10px; font-size: 11.5px; color: var(--dimmer); }
+  @media (max-width: 900px) { .split { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body id="top">
+<div class="noise" aria-hidden="true"></div>
+
+<header class="nav" id="nav">
+  <a class="brand" href="../index.html" aria-label="3HZ home">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c4b5fd"/><stop offset="1" stop-color="#5b3bb8"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="url(#lg)"/><path d="M6 17.5h4.2l2.3-6.2 3.5 12 2.7-8 1.6 2.2H26" fill="none" stroke="#150a2b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    3HZ Client
+  </a>
+  <nav class="nav-links" aria-label="Sections">
+    <a href="#launcher">Launcher</a>
+    <a href="#clickgui">ClickGUI</a>
+    <a href="#how">How it works</a>
+    <a href="#download">Download</a>
+    <a href="#modules">Modules</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+  <div class="nav-cta">
+    <a class="btn ghost small" href="../index.html">All products</a>
+    <a class="btn primary small" href="#how">Build it</a>
+  </div>
+  <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg>
+  </button>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-grid" aria-hidden="true"></div>
+    <div class="wrap hero-inner">
+      <div class="split">
+        <div>
+          <span class="eyebrow reveal"><i class="dot"></i> Fabric · Minecraft 1.21 · native launcher</span>
+          <h1 class="display reveal" style="--d:70ms">A Minecraft client<br><span class="grad">with its own engine room.</span></h1>
+          <p class="lede reveal" style="--d:140ms">
+            3HZ Client takes the LiquidBounce NextGen codebase, renames it end to end, and pairs it with
+            a launcher that is a real Win32 program — DirectX 11 and Dear ImGui, not an Electron page
+            wearing a window frame. It builds the client, installs it, and starts the game.
+          </p>
+          <div class="hero-actions reveal" style="--d:210ms">
+            <a class="btn primary" href="#how">How it works
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h13m0 0-5-5m5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a class="btn ghost" href="#modules">See the module set</a>
+          </div>
+          <div class="hero-stats reveal" style="--d:280ms">
+            <div class="stat"><b>Win32</b><span>launcher window</span></div>
+            <div class="stat"><b>DX11</b><span>renderer</span></div>
+            <div class="stat"><b>1</b><span>ClickGUI window</span></div>
+          </div>
+        </div>
+
+        <div class="reveal" style="--d:180ms">
+          <div class="launcher" data-tilt="4">
+            <div class="launcher-top"><i style="width:7px;height:7px;border-radius:50%;background:#3a2029"></i><i style="width:7px;height:7px;border-radius:50%;background:#36301c"></i><i style="width:7px;height:7px;border-radius:50%;background:#1d332a"></i><b style="margin-left:8px">3HZ Client</b><span style="margin-left:auto;font-family:var(--mono);font-size:10px">native · 60 fps idle</span></div>
+            <div class="launcher-body">
+              <div class="launcher-side">
+                <span class="on"><i></i> Home</span>
+                <span><i></i> Play</span>
+                <span><i></i> Modules</span>
+                <span><i></i> Settings</span>
+                <span><i></i> About</span>
+              </div>
+              <div class="launcher-main">
+                <div>
+                  <h4>Launch client</h4>
+                  <p>Fabric 1.21 · profile <b style="color:var(--text)">3hz</b> · last build ready</p>
+                </div>
+                <div class="launcher-chips">
+                  <span class="chip">1.21</span>
+                  <span class="chip">fabric</span>
+                  <span class="chip">stable</span>
+                </div>
+                <div class="launcher-actions">
+                  <span class="btn primary small">Launch client</span>
+                  <span class="btn small">Build &amp; install</span>
+                </div>
+                <div class="launcher-strip">
+                  <div class="launcher-tile"><b>ClickGUI</b>single window</div>
+                  <div class="launcher-tile"><b>Theme</b>3HZ palette</div>
+                  <div class="launcher-tile"><b>Configs</b>per profile</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="caption">Launcher shell — recreated from the native window's layout. No capture of this build exists yet.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>fabric client</span><span>single-window clickgui</span><span>win32 launcher</span><span>directx 11</span>
+      <span>dear imgui</span><span>cef theme</span><span>mod rename</span><span>1.21</span>
+      <span>fabric client</span><span>single-window clickgui</span><span>win32 launcher</span><span>directx 11</span>
+      <span>dear imgui</span><span>cef theme</span><span>mod rename</span><span>1.21</span>
+    </div>
+  </div>
+
+  <section class="section" id="launcher">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="kicker">The launcher</span>
+        <h2 class="h2">Native, because a launcher should open instantly.</h2>
+        <p>It started life as an Electron page. It is not one any more: the window is Win32, the surfaces are DirectX 11, and the UI is drawn with Dear ImGui — the same stack as 3HZ Tweaks.</p>
+      </div>
+      <div class="grid-3">
+        <div class="feature reveal"><span class="fig">FIG. 01</span><h3>It starts the game</h3><p>“Launch client” runs the real client. “Build &amp; install” compiles through Gradle and puts the renamed mod where Fabric expects it.</p></div>
+        <div class="feature reveal" style="--d:70ms"><span class="fig">FIG. 02</span><h3>No browser in the middle</h3><p>Win32 window, DirectX 11 context, Dear ImGui panels. Close to zero idle CPU, and it opens in a blink.</p></div>
+        <div class="feature reveal" style="--d:140ms"><span class="fig">FIG. 03</span><h3>Same design language</h3><p>Charcoal panels, hairline borders, one accent, square-ish corners — the 3HZ look, applied to Minecraft instead of Windows.</p></div>
+      </div>
+      <div class="swatches reveal" aria-label="Palette">
+        <span class="swatch" style="background:#5BA8F0" title="#5BA8F0"></span>
+        <span class="swatch" style="background:#0b1017" title="#0B1017"></span>
+        <span class="swatch" style="background:#111925" title="#111925"></span>
+        <span class="swatch" style="background:#7DF9C6" title="#7DF9C6"></span>
+        <span class="swatch" style="background:#eef3f9" title="#EEF3F9"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="clickgui" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="kicker">The interface</span>
+        <h2 class="h2">One window instead of a tab per category.</h2>
+        <p>Ported from the client's own <code>WindowClickGui</code> component — category rail, module list with state dots, and the selected module's settings on the right. <b style="color:var(--text)">It is live: flip a switch, search, drag a slider.</b></p>
+      </div>
+      <div class="reveal" style="margin-top:28px">
+        <div class="cgui" id="clickgui-demo" aria-label="Interactive ClickGUI recreation"></div>
+      </div>
+      <p class="caption reveal" style="text-align:center">Recreated at the component's real geometry and palette. State lives in this page only — the in-game window talks to the client instead.</p>
+      <div class="grid-3">
+        <div class="feature reveal"><span class="fig">01</span><h3>Search and toggle</h3><p>Filter every module by name; the state dot, the row colour and the switch all follow one state.</p></div>
+        <div class="feature reveal" style="--d:60ms"><span class="fig">02</span><h3>Settings belong to the module</h3><p>Select a row and its own values appear, rendered from the same setting types the client exposes.</p></div>
+        <div class="feature reveal" style="--d:120ms"><span class="fig">03</span><h3>Drag, scale, close</h3><p>In game the window keeps its position and scale between sessions; Right Shift closes it.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="how" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="kicker">How it works</span>
+        <h2 class="h2">Four steps, one of which is just clicking Play.</h2>
+        <p>This is a source build, not a store download — Fabric mods are compiled for the Minecraft version you run.</p>
+      </div>
+      <div class="steps reveal">
+        <div class="step"><b>01</b><div><h3>Pick a Minecraft version</h3><p>The launcher carries the version chips; the client targets Fabric 1.21.</p></div></div>
+        <div class="step"><b>02</b><div><h3>Build &amp; install</h3><p>Gradle compiles the renamed mod and installs it into the profile Fabric will load.</p></div></div>
+        <div class="step"><b>03</b><div><h3>Launch client</h3><p>The launcher starts Minecraft with the 3HZ profile — no manual mod-folder surgery.</p></div></div>
+        <div class="step"><b>04</b><div><h3>Open the ClickGUI</h3><p>In game, the keybind opens the single-window interface; the theme is the CEF UI, not a resource pack.</p></div></div>
+      </div>
+      <div class="note" style="border-color:color-mix(in srgb,#ffd79a 26%,var(--line));background:rgba(255,215,154,0.05)">
+        <b>Development status.</b> The rename is not cosmetic: the mod id changed to <code>threehzclient</code>, and
+        the mod declares <code>provides: ["liquidbounce"]</code> so the bundled CEF module still resolves its
+        dependency. Branding, the title screen and the module audit are still being worked through.
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="modules" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="kicker">Modules</span>
+        <h2 class="h2">The module set comes with the client.</h2>
+        <p>3HZ Client inherits the module catalogue of the base it is built on and reskins it. Categories you can expect in the ClickGUI:</p>
+      </div>
+      <div class="grid-3">
+        <div class="feature reveal"><h3>Combat</h3><p>Aim, click and timing modules, each with its own settings in the side pane.</p></div>
+        <div class="feature reveal" style="--d:60ms"><h3>Movement</h3><p>Sprint, jump and travel behaviour.</p></div>
+        <div class="feature reveal" style="--d:120ms"><h3>Render</h3><p>HUD elements, ESP-style overlays and visual toggles.</p></div>
+        <div class="feature reveal" style="--d:180ms"><h3>World</h3><p>Interaction with blocks and the environment.</p></div>
+        <div class="feature reveal" style="--d:240ms"><h3>Player</h3><p>Inventory and self-management helpers.</p></div>
+        <div class="feature reveal" style="--d:300ms"><h3>Misc</h3><p>Everything that does not fit the other five, including the client's own utilities.</p></div>
+      </div>
+      <p class="caption reveal">The base project's module list is large; this page names categories, not a count it cannot verify.</p>
+    </div>
+  </section>
+
+  <section class="section" id="download" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="kicker">Download</span>
+        <h2 class="h2">The launcher, as a Windows build.</h2>
+        <p>The native launcher from the client workspace, packaged for Windows. It builds the mod through Gradle and starts the game — the client itself still needs your own Minecraft installation.</p>
+      </div>
+      <div class="grid-2">
+        <a class="feature reveal" href="../download/3HZClientLauncher.exe" download="3HZClientLauncher.exe" style="text-decoration:none">
+          <span class="fig">WINDOWS · X64</span>
+          <h3>3HZClientLauncher.exe</h3>
+          <p>Straight from the client's <code>launcher/build</code> output. Unsigned, so SmartScreen asks once — More info, then Run anyway.</p>
+          <span class="btn primary small" style="margin-top:12px;pointer-events:none">Download .exe</span>
+        </a>
+        <div class="feature reveal" style="--d:80ms">
+          <span class="fig">MINECRAFT</span>
+          <h3>You still need the game</h3>
+          <p>3HZ Client is a Fabric client, not a replacement for Minecraft. Install Fabric for 1.21 and keep your own legitimate installation.</p>
+          <a class="btn ghost small" href="#how" style="margin-top:12px">How the build works</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="faq" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="kicker">FAQ</span>
+        <h2 class="h2">Straight answers.</h2>
+      </div>
+      <div class="faq reveal">
+        <details open>
+          <summary>Is this a from-scratch client?</summary>
+          <p>No — it is the LiquidBounce NextGen codebase, renamed and rebranded, with its own theme and launcher. Saying otherwise would be dishonest, and the project is better for being clear about its base.</p>
+        </details>
+        <details>
+          <summary>Why does a Minecraft client need a C++ launcher?</summary>
+          <p>Because the first version was Electron and it felt like it. The rebuild uses Win32 + DirectX 11 + Dear ImGui, which opens instantly and matches 3HZ Tweaks. It also means the launcher can genuinely run Gradle and start the game.</p>
+        </details>
+        <details>
+          <summary>Will the CEF interface still work after the rename?</summary>
+          <p>Yes. The bundled CEF module depends on the <code>liquidbounce</code> mod id, so the renamed mod declares <code>provides: ["liquidbounce"]</code>. Without that, Fabric refuses to load the client at all — the exact crash this fixes.</p>
+        </details>
+        <details>
+          <summary>Where do I download it?</summary>
+          <p>There is no hosted installer yet. It is a source build: clone the client, point the launcher at the Gradle project, and use “Build &amp; install”. Hosting a compiled Minecraft mod is a different problem from hosting a Windows installer, and this page will not pretend it is solved.</p>
+        </details>
+        <details>
+          <summary>Is singleplayer/offline covered?</summary>
+          <p>3HZ Client is a client for Minecraft, not a replacement for it — you still need a legitimate Minecraft installation. Nothing here bypasses authentication or distributes game assets.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <div class="wrap reveal">
+      <h2>Same charcoal. Different game.</h2>
+      <p>If you like how 3HZ Tweaks behaves, this is that philosophy pointed at Minecraft.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="../tweaks.html">See 3HZ Tweaks</a>
+        <a class="btn" href="../code/">See 3HZ Code</a>
+        <a class="btn" href="../index.html">All products</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <a class="brand" href="../index.html">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#111925"/><path d="M6 17.5h4.2l2.3-6.2 3.5 12 2.7-8 1.6 2.2H26" fill="none" stroke="#a78bfa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          3HZ Client
+        </a>
+        <p style="color:var(--dimmer);font-size:12.5px;max-width:280px;margin:14px 0 0">A Fabric Minecraft client and its native launcher.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="#launcher">Launcher</a>
+        <a href="#clickgui">ClickGUI</a>
+        <a href="#how">How it works</a>
+        <a href="#modules">Modules</a>
+      </div>
+      <div>
+        <h4>3HZ</h4>
+        <a href="../index.html">Home</a>
+        <a href="../tweaks.html">3HZ Tweaks</a>
+        <a href="../code/">3HZ Code</a>
+      </div>
+      <div>
+        <h4>Elsewhere</h4>
+        <a href="https://github.com/frotz69" target="_blank" rel="noopener">GitHub</a>
+        <a href="mailto:hello@3hztweaks.dev">Support</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span data-year>2026</span> 3HZ Client — built on LiquidBounce NextGen.</span>
+      <span>Minecraft is a trademark of Mojang Studios</span>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/clickgui.js"></script>
+<script src="../assets/hub.js"></script>
+</body>
+</html>

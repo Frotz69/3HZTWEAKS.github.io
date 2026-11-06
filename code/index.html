@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3HZ Code — an AI coding harness for your own machine</title>
+<meta name="description" content="3HZ Code is a terminal-first, provider-independent AI coding harness. 15 real tools, plan/build/mission modes, real shell, local models free, keyless Pollinations, and honest paid tiers. MIT.">
+<meta name="theme-color" content="#07090d">
+<meta property="og:title" content="3HZ Code — the agent that lives in your repo">
+<meta property="og:description" content="Reads the project, edits files, runs real commands and shows every step. Local models first, no bundled API keys, MIT.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="../assets/img/code-agent.png">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/hub.css">
+<style>
+  :root { --accent: #7df9c6; --accent-soft: #a9ffe0; }
+  .btn.primary { color: #04211a; }
+  body { --code-accent: #7df9c6; }
+  .split { display: grid; grid-template-columns: 1.05fr 1fr; gap: 34px; align-items: center; }
+  .hero-shot { margin-top: 58px; }
+  .table { width: 100%; border-collapse: collapse; margin-top: 26px; font-size: 13.5px; }
+  .table th, .table td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .table th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--dimmer); font-weight: 500; }
+  .table td:first-child { color: var(--text); font-weight: 550; white-space: nowrap; }
+  .table td { color: var(--dim); }
+  .pill { display: inline-block; font-family: var(--mono); font-size: 10px; padding: 2px 7px; border-radius: 999px; border: 1px solid var(--line); color: var(--accent); }
+  .faq { margin-top: 34px; border-top: 1px solid var(--line); }
+  .faq details { border-bottom: 1px solid var(--line); padding: 16px 2px; }
+  .faq summary { cursor: pointer; font-size: 14.5px; font-weight: 550; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; color: var(--accent); font-family: var(--mono); }
+  .faq details[open] summary::after { content: "−"; }
+  .faq p { margin: 10px 0 0; color: var(--dim); font-size: 13.5px; max-width: 760px; }
+  .note { margin-top: 22px; padding: 16px 18px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--line)); background: color-mix(in srgb, var(--accent) 6%, transparent); font-size: 13px; color: var(--dim); }
+  .note b { color: var(--text); }
+  @media (max-width: 900px) { .split { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body id="top">
+<div class="noise" aria-hidden="true"></div>
+
+<header class="nav" id="nav">
+  <a class="brand" href="../index.html" aria-label="3HZ home">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a9ffe0"/><stop offset="1" stop-color="#1f8f72"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="url(#lg)"/><path d="M6 17.5h4.2l2.3-6.2 3.5 12 2.7-8 1.6 2.2H26" fill="none" stroke="#04211a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    3HZ Code
+  </a>
+  <nav class="nav-links" aria-label="Sections">
+    <a href="#features">Features</a>
+    <a href="#modes">Modes</a>
+    <a href="#models">Models</a>
+    <a href="#shots">Screenshots</a>
+    <a href="#download">Download</a>
+    <a href="#install">Install</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+  <div class="nav-cta">
+    <a class="btn ghost small" href="../index.html">All products</a>
+    <a class="btn primary small" href="#install">Install it</a>
+  </div>
+  <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg>
+  </button>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-grid" aria-hidden="true"></div>
+    <div class="wrap hero-inner">
+      <span class="eyebrow reveal"><i class="dot"></i> v0.1.0 · MIT · Windows, macOS, Linux</span>
+      <h1 class="display reveal" style="--d:70ms">The agent that<br><span class="grad">lives in your repo.</span></h1>
+      <p class="lede reveal" style="--d:140ms">
+        3HZ Code reads the project, edits files, runs real commands and shows you every step.
+        Terminal-first, provider-independent, and built so the free path actually works: Ollama and
+        LM Studio run locally, Pollinations needs no key at all, and nothing is unlocked by faking a login.
+      </p>
+      <div class="hero-actions reveal" style="--d:210ms">
+        <a class="btn primary" href="https://github.com/frotz69/3HZTWEAKS.github.io/releases/download/code-v0.1.0/3HZ-Code-Setup.exe">Download for Windows
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 20h14" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="btn ghost" href="#shots">See the interface</a>
+      </div>
+      <div class="hero-stats reveal" style="--d:280ms">
+        <div class="stat"><b data-count="15">15</b><span>real tools</span></div>
+        <div class="stat"><b data-count="24">24</b><span>iteration budget</span></div>
+        <div class="stat"><b data-count="34">34</b><span>smoke checks</span></div>
+        <div class="stat"><b data-count="0">0</b><span>keys bundled</span></div>
+      </div>
+      <figure class="shot hero-shot reveal" style="--d:340ms" data-tilt="2.5">
+        <div class="shot-bar"><i></i><i></i><i></i><span>3hz code — agent view</span></div>
+        <img src="../assets/img/code-agent.png" alt="3HZ Code window showing the transcript, activity panel and composer" width="1456" height="928">
+        <figcaption>Captured from the packaged Windows build — transcript, activity panel and composer.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section" id="features">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="kicker">What it does</span>
+        <h2 class="h2">A loop, real tools, and a transcript you can audit.</h2>
+        <p>Context → stream → tool calls → results → repeat, until the model is done, you stop it, or the iteration limit is hit.</p>
+      </div>
+      <div class="grid-3">
+        <div class="feature reveal"><span class="fig">FIG. 01</span><h3>Fifteen real tools</h3><p><code>read_file</code>, <code>write_file</code>, <code>edit_file</code>, <code>search_files</code>, <code>run_command</code>, <code>git_commit</code> and the rest. Every write returns a unified diff instead of claiming success.</p></div>
+        <div class="feature reveal" style="--d:70ms"><span class="fig">FIG. 02</span><h3>Approval where it matters</h3><p>Destructive steps pause and ask. A hard blocklist refuses disk formatting, root deletes, privilege escalation, <code>git push</code>, <code>reset --hard</code> and pipe-to-shell downloads outright.</p></div>
+        <div class="feature reveal" style="--d:140ms"><span class="fig">FIG. 03</span><h3>Two tool protocols</h3><p>Native function calling for OpenAI-compatible endpoints, plus a text <code>&lt;tool_call&gt;</code> protocol for local models that never learned tool calling.</p></div>
+        <div class="feature reveal" style="--d:210ms"><span class="fig">FIG. 04</span><h3>A real shell</h3><p>xterm.js wired to a child process: streaming stdout and stderr, exit codes, history, <code>cd</code> tracking, Ctrl+C and process-tree kill.</p></div>
+        <div class="feature reveal" style="--d:280ms"><span class="fig">FIG. 05</span><h3>Project context</h3><p>Ignore-aware scanning, language and framework detection, entry-point scoring, grep and filename search — with <code>.env*</code> excluded, not slurped.</p></div>
+        <div class="feature reveal" style="--d:350ms"><span class="fig">FIG. 06</span><h3>Sessions that survive</h3><p>One JSON file per session, written atomically, with an index, rename, delete, clear and recovery after a crash.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="modes" style="padding-top:0">
+    <div class="wrap">
+      <div class="split">
+        <div>
+          <div class="section-head reveal">
+            <span class="kicker">Three modes</span>
+            <h2 class="h2">It changes behaviour, not just the label.</h2>
+            <p>The mode chip in the composer decides what the agent is allowed to do on the next run.</p>
+          </div>
+          <div class="steps reveal">
+            <div class="step"><b>PLAN</b><div><h3>Read-only by construction</h3><p>Write, move and delete tools are withheld and refused at execution time. The agent publishes steps with <code>update_plan</code> and stops — approve to start the real run, or edit the plan first.</p></div></div>
+            <div class="step"><b>BUILD</b><div><h3>The default</h3><p>Inspect, change, verify, report in one run. Writes still show diffs; risky commands still ask.</p></div></div>
+            <div class="step"><b>MISSION</b><div><h3>Unattended, with a gate</h3><p>A multi-stage objective with a tripled iteration budget, safe commands auto-approved — but commits stop at a review gate that shows the actual <code>git diff</code>.</p></div></div>
+          </div>
+        </div>
+        <figure class="shot reveal" data-tilt="3">
+          <div class="shot-bar"><i></i><i></i><i></i><span>3hz code — session</span></div>
+          <img src="../assets/img/code-agent.png" alt="3HZ Code transcript with plan steps and tool results" loading="lazy" width="1456" height="928">
+          <figcaption>Streaming text, tool cards, diffs and plan steps all land in the transcript and persist per session.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="models" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="kicker">Models</span>
+        <h2 class="h2">Free paths that are actually free.</h2>
+        <p>The app ships with zero keys and does not borrow anyone else's. Tiers in the picker are literal: <span class="pill">local</span> runs here, <span class="pill">free</span> is a free tier with limits, <span class="pill">paid</span> bills per token.</p>
+      </div>
+      <table class="table reveal">
+        <thead><tr><th>Provider</th><th>Tier</th><th>What it needs</th></tr></thead>
+        <tbody>
+          <tr><td>Ollama</td><td><span class="pill">local</span></td><td>Installed locally; auto-detected on <code>127.0.0.1:11434</code>. Nothing leaves the machine.</td></tr>
+          <tr><td>LM Studio</td><td><span class="pill">local</span></td><td>Start its server on port 1234; it is OpenAI-compatible.</td></tr>
+          <tr><td>Pollinations</td><td><span class="pill">free</span></td><td>Enabled out of the box, no key. Anonymous tier is rate limited to roughly one reply every 45 seconds.</td></tr>
+          <tr><td>Gemini · Groq · OpenRouter · Cerebras</td><td><span class="pill">free</span></td><td>A key you create yourself; free tiers, no card. Each card links to its key page.</td></tr>
+          <tr><td>OpenAI · DeepSeek API</td><td><span class="pill">paid</span></td><td>Labelled paid in the picker. DeepSeek still grants new accounts a one-time token allowance.</td></tr>
+        </tbody>
+      </table>
+      <div class="note reveal">
+        <b>No borrowed credentials.</b> The hosted models the Freebuff desktop client uses are served by
+        its own backend and need that account's entitlement. 3HZ Code does not copy, proxy or bypass them —
+        it gets you free inference through local servers and genuine free tiers instead.
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="shots" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="kicker">Screenshots</span>
+        <h2 class="h2">The window, as it ships.</h2>
+        <p>Both frames were captured from the packaged Windows build, not assembled for this page.</p>
+      </div>
+      <div class="grid-2">
+        <figure class="shot reveal" data-tilt="3">
+          <div class="shot-bar"><i></i><i></i><i></i><span>agent view</span></div>
+          <img src="../assets/img/code-agent.png" alt="3HZ Code agent view" loading="lazy" width="1456" height="928">
+          <figcaption>Transcript with tool cards, activity rail and the composer's context wheel.</figcaption>
+        </figure>
+        <figure class="shot reveal" style="--d:100ms" data-tilt="3">
+          <div class="shot-bar"><i></i><i></i><i></i><span>transcript detail</span></div>
+          <img src="../assets/img/code-detail.png" alt="Close view of the 3HZ Code transcript showing tool cards" loading="lazy" width="760" height="560">
+          <figcaption>A closer look at the same run — tool calls are cards you can open.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="download" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="kicker">Download</span>
+        <h2 class="h2">Windows build, ready to install.</h2>
+        <p>The packaged installer from this build — no Node, no npm, and no model bundled. It ships with zero keys, exactly like the source tree.</p>
+      </div>
+      <div class="grid-2">
+        <a class="feature reveal" href="https://github.com/frotz69/3HZTWEAKS.github.io/releases/download/code-v0.1.0/3HZ-Code-Setup.exe" style="text-decoration:none">
+          <span class="fig">WINDOWS · X64 · NSIS</span>
+          <h3>3HZ Code Setup 0.1.0</h3>
+          <p>116 MB installer, per-user install with a Start-menu entry. First run opens Settings because no model is selected yet.</p>
+          <span class="btn primary small" style="margin-top:12px; pointer-events:none">Download .exe</span>
+        </a>
+        <div class="feature reveal" style="--d:80ms">
+          <span class="fig">SOURCE</span>
+          <h3>Prefer to build it?</h3>
+          <p>Node 20+, three commands. The installer beside this is produced by <code>npm run package</code> from the same tree.</p>
+          <a class="btn ghost small" href="#install" style="margin-top:12px">Install from source</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="install" style="padding-top:0">
+    <div class="wrap">
+      <div class="split">
+        <div>
+          <div class="section-head reveal">
+            <span class="kicker">Install</span>
+            <h2 class="h2">Three commands and a model.</h2>
+            <p>Node 20+ (developed on Node 24). Optional: Ollama for local inference, and <code>git</code> on <code>PATH</code> for the git panel and git tools.</p>
+          </div>
+          <div class="cta-row reveal">
+            <a class="btn primary" href="https://ollama.com" target="_blank" rel="noopener">Get Ollama</a>
+            <a class="btn ghost" href="#faq">Read the FAQ</a>
+          </div>
+        </div>
+        <div class="terminal reveal">
+          <div class="shot-bar"><i></i><i></i><i></i><span>powershell</span></div>
+<pre><span class="c"># from the 3hz-code folder</span>
+<span class="p">npm</span> install
+<span class="p">node</span> node_modules/electron/install.js   <span class="c"># if postinstall was blocked</span>
+<span class="p">npm</span> run dev
+
+<span class="c"># production build + start</span>
+<span class="p">npm</span> run build
+<span class="p">npm</span> start
+
+<span class="c"># pull a free local model</span>
+<span class="p">ollama</span> pull qwen2.5-coder:7b
+
+<span class="c"># verify the whole thing</span>
+<span class="p">npm</span> run typecheck
+<span class="p">npm</span> run smoke   <span class="c"># 34 checks, mock server, no key</span></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="faq" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="kicker">FAQ</span>
+        <h2 class="h2">Before you point it at a repo.</h2>
+      </div>
+      <div class="faq reveal">
+        <details open>
+          <summary>Does it need an API key to start?</summary>
+          <p>No. Pollinations is seeded and keyless, and Ollama or LM Studio need no account at all. Keys are only for the free hosted tiers and the paid APIs, and they are stored with the OS keychain (DPAPI on Windows).</p>
+        </details>
+        <details>
+          <summary>Can it push, reset or delete things on its own?</summary>
+          <p>It never pushes. <code>git push</code>, <code>git reset --hard</code>, disk formatting, recursive deletes of roots, privilege escalation and pipe-to-shell downloads are refused by a hard blocklist. Deletes and moves stop for approval, and mission mode's commit path shows the diff first.</p>
+        </details>
+        <details>
+          <summary>What are the real limitations?</summary>
+          <p>The shell is line-oriented — full-screen TUIs such as vim or htop are not supported, which is stated in Settings → Terminal. There is no extension marketplace, no multi-window project tabs, and storage is JSON rather than SQLite.</p>
+        </details>
+        <details>
+          <summary>Does the smoke suite use a real model?</summary>
+          <p>It runs the whole agent loop against a mock OpenAI-compatible server: streaming, native tool calls, tool execution, confirmations and cancellation. That is how it verifies behaviour without a key or a bill.</p>
+        </details>
+        <details>
+          <summary>Can I import my existing chats?</summary>
+          <p>Yes — Sessions → import chats reads the Freebuff/Codebuff desktop client's <code>desktop-v2.db</code> stores and turns every thread into a session. Re-running skips threads that already exist.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <div class="wrap reveal">
+      <h2>Point it at a folder. Watch it work.</h2>
+      <p>MIT licensed, no bundled keys, and a transcript that shows exactly what happened.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="https://github.com/frotz69/3HZTWEAKS.github.io/releases/download/code-v0.1.0/3HZ-Code-Setup.exe">Download 3HZ Code</a>
+        <a class="btn" href="../index.html">See the other two</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <a class="brand" href="../index.html">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#111925"/><path d="M6 17.5h4.2l2.3-6.2 3.5 12 2.7-8 1.6 2.2H26" fill="none" stroke="#7df9c6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          3HZ Code
+        </a>
+        <p style="color:var(--dimmer);font-size:12.5px;max-width:280px;margin:14px 0 0">A terminal-first AI coding harness for the desktop. MIT.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="#features">Features</a>
+        <a href="#modes">Modes</a>
+        <a href="#models">Models</a>
+        <a href="#install">Install</a>
+      </div>
+      <div>
+        <h4>3HZ</h4>
+        <a href="../index.html">Home</a>
+        <a href="../tweaks.html">3HZ Tweaks</a>
+        <a href="../client/">3HZ Client</a>
+      </div>
+      <div>
+        <h4>Elsewhere</h4>
+        <a href="https://github.com/frotz69" target="_blank" rel="noopener">GitHub</a>
+        <a href="mailto:hello@3hztweaks.dev">Support</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span data-year>2026</span> 3HZ Code — MIT.</span>
+      <span>No keys bundled · no quota bypassed</span>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/hub.js"></script>
+</body>
+</html>
