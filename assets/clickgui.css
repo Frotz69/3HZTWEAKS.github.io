@@ -314,6 +314,21 @@
   flex: none;
 }
 .cgui-packs-head h2 { margin: 4px 0 0; font-size: 15px; font-weight: 600; color: #eef3f9; }
+.cgui-packs-actions { display: flex; align-items: center; gap: 10px; }
+.cgui-back {
+  height: 28px;
+  padding: 0 10px;
+  background: #101923;
+  border: 1px solid #1e2a3a;
+  border-radius: 5px;
+  color: #a7b2c2;
+  font: inherit;
+  font-size: 9.5px;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+}
+.cgui-back:hover { background: #16212e; color: #e6edf6; border-color: #243244; }
+.cgui-back:focus-visible { outline: 1px solid var(--cgui-accent); outline-offset: 2px; }
 .cgui-vsel { display: flex; align-items: center; gap: 8px; }
 .cgui-vsel select {
   height: 28px;

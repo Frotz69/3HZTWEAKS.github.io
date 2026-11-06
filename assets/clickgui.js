@@ -10,8 +10,8 @@
   const root = document.getElementById('clickgui-demo')
   if (!root) return
 
-  const PACK_CATEGORY = 'Resource Packs'
-  const CATEGORIES = ['Combat', 'Movement', 'Render', 'World', 'Player', 'Misc', PACK_CATEGORY]
+  const COSMETICS = 'Cosmetics'
+  const CATEGORIES = ['Combat', 'Movement', 'Render', 'World', 'Player', 'Misc', COSMETICS]
 
   const range = (label, min, max, value, suffix = '') => ({ type: 'range', label, min, max, value, suffix })
   const bool = (label, value = false) => ({ type: 'bool', label, value })
@@ -52,6 +52,11 @@
       { id: 'middleclick', name: 'MiddleClick', desc: 'Middle click to add a friend.', settings: [bool('Friends only', true)] },
       { id: 'panic', name: 'Panic', desc: 'Disables every module at once.', settings: [bool('Ask first', true)] },
       { id: 'spammer', name: 'Spammer', desc: 'Repeats a message on a delay.', settings: [range('Delay', 500, 5000, 2500, ' ms')] }
+    ],
+    Cosmetics: [
+      { id: 'hologram', name: 'Hologram', desc: 'Draws a client-side hologram of your skin beside you.', tag: 'render', settings: [range('Scale', 50, 200, 100, '%'), range('Opacity', 10, 100, 85, '%'), bool('Only in third person', true)] },
+      { id: 'skinchanger', name: 'Skin Changer', desc: 'Swaps your skin from a file or URL without touching the account.', settings: [bool('Slim model', true), bool('Apply to cape too'), range('Refresh', 1, 60, 5, ' s')] },
+      { id: 'resourcepacks', name: 'Resource Packs', desc: 'Browse, download and convert packs without leaving the game.', tag: 'live', settings: [bool('Auto-convert missing versions', true), bool('Verify textures after download', true)] }
     ]
   }
 
@@ -72,6 +77,7 @@
       total: 0,
       loading: false,
       loaded: false,
+      open: false,
       error: '',
       status: {},
       busy: {}
@@ -318,8 +324,10 @@
 
   /* ------------------------------------------------------------------ render */
 
+  const packsOpen = () => state.category === COSMETICS && packs.open
+
   const visible = () => {
-    if (state.category === PACK_CATEGORY) return []
+    if (packsOpen()) return []
     if (state.query) {
       const q = state.query.toLowerCase()
       return ALL.filter((module) => module.name.toLowerCase().includes(q))
@@ -329,7 +337,7 @@
 
   const enabledCount = () => ALL.filter((module) => state.enabled.has(module.id)).length
 
-  const catCount = (name) => (name === PACK_CATEGORY ? (packs.loaded ? packs.hits.length || packs.total : 0) : MODULES[name].length)
+  const catCount = (name) => MODULES[name].length
 
   const packNote = () => {
     if (packs.error) return `Could not reach Modrinth: ${esc(packs.error)} — check the connection and retry.`
@@ -364,15 +372,18 @@
     <section class="cgui-packs">
       <div class="cgui-packs-head">
         <div>
-          <div class="cgui-label">RESOURCE PACKS</div>
+          <div class="cgui-label">COSMETICS · RESOURCE PACKS</div>
           <h2>Browse packs for ${esc(packs.version)}</h2>
         </div>
-        <label class="cgui-vsel">
-          <span class="cgui-label">VERSION</span>
-          <select id="pack-version" data-pack-version aria-label="Target Minecraft version">
-            ${PACK_VERSIONS.map((version) => `<option value="${version}"${version === packs.version ? ' selected' : ''}>${version}</option>`).join('')}
-          </select>
-        </label>
+        <div class="cgui-packs-actions">
+          <button class="cgui-back" type="button" data-packs-back>← Cosmetics</button>
+          <label class="cgui-vsel">
+            <span class="cgui-label">VERSION</span>
+            <select id="pack-version" data-pack-version aria-label="Target Minecraft version">
+              ${PACK_VERSIONS.map((version) => `<option value="${version}"${version === packs.version ? ' selected' : ''}>${version}</option>`).join('')}
+            </select>
+          </label>
+        </div>
       </div>
       <div class="cgui-packs-note" id="pack-note">${packNote()}</div>
       <div class="cgui-pack-scroll">
@@ -391,8 +402,6 @@
     if (more) more.hidden = packs.loading || packs.hits.length >= packs.total
     if (scroll) scroll.scrollTop = top
     renderPackNote()
-    const badge = root.querySelector('[data-cat="' + PACK_CATEGORY + '"] .cgui-cat-count')
-    if (badge) badge.textContent = String(catCount(PACK_CATEGORY))
   }
 
   const renderPackNote = () => {
@@ -401,7 +410,7 @@
   }
 
   const render = () => {
-    const isPacks = state.category === PACK_CATEGORY
+    const isPacks = packsOpen()
     const modules = visible()
     if (!isPacks && !modules.some((module) => module.id === state.selectedId)) state.selectedId = modules[0]?.id ?? null
     const selected = ALL.find((module) => module.id === state.selectedId)
@@ -520,21 +529,22 @@
       loadPacks(false)
       return
     }
+    if (event.target.closest('[data-packs-back]')) {
+      packs.open = false
+      render()
+      return
+    }
     const cat = event.target.closest('[data-cat]')
     if (cat) {
       state.category = cat.dataset.cat
       state.query = ''
-      if (state.category === PACK_CATEGORY) {
-        render()
-        if (!packs.loaded) loadPacks(true)
-      } else {
-        state.selectedId = MODULES[state.category][0].id
-        render()
-      }
+      packs.open = false
+      state.selectedId = MODULES[state.category][0].id
+      render()
       return
     }
     if (event.target.closest('#gui-clear')) {
-      if (state.category === PACK_CATEGORY) {
+      if (packsOpen()) {
         packs.query = ''
         render()
         loadPacks(true)
@@ -547,7 +557,14 @@
     const row = event.target.closest('[data-row]')
     if (row) {
       state.selectedId = row.dataset.row
-      render()
+      if (row.dataset.row === 'resourcepacks') {
+        packs.open = true
+        render()
+        if (!packs.loaded) loadPacks(true)
+      } else {
+        packs.open = false
+        render()
+      }
     }
   })
 
@@ -572,7 +589,7 @@
   root.addEventListener('input', (event) => {
     const input = event.target
     if (input.id === 'gui-search') {
-      if (state.category === PACK_CATEGORY) {
+      if (packsOpen()) {
         packs.query = input.value.trim()
         clearTimeout(searchTimer)
         searchTimer = setTimeout(() => { loadPacks(true) }, 320)
