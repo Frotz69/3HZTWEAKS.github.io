@@ -179,7 +179,7 @@
         const open = nav.classList.toggle('open')
         burger.setAttribute('aria-expanded', String(open))
       })
-      nav.querySelectorAll('.nav-links a, .nav-cta a, .nav-cta button').forEach((link) =>
+      nav.querySelectorAll('.nav-links a, .nav-links button, .nav-cta a, .nav-cta button').forEach((link) =>
         link.addEventListener('click', () => {
           nav.classList.remove('open')
           burger.setAttribute('aria-expanded', 'false')
